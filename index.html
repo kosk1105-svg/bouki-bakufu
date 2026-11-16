@@ -555,18 +555,22 @@
 
                 <div class="flex flex-wrap gap-2">
                     <button type="button" onclick="saveCustomFirebaseConfig()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow">
-                        🔥 Firebase設定を保存して接続
+                        🔥 ① Firebase設定を保存して接続
                     </button>
-                    <button type="button" onclick="forceManualCloudSync()" class="px-3 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-black text-xs">
-                        🔄 今すぐ手動で同期テスト
+                    <button type="button" onclick="copyCleanHtmlWithEmbeddedConfig()" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow">
+                        📋 ② GitHub貼付用の完成コード全文をコピー
+                    </button>
+                    <button type="button" onclick="downloadHtmlWithEmbeddedConfig()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 font-black text-xs">
+                        📥 ② 設定埋め込み済 index.html を保存 (GitHub用)
                     </button>
                     <button type="button" onclick="copyFirebaseShareLink()" class="px-3 py-2 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 font-black text-xs">
                         🔗 友達用の自動接続URLをコピー
                     </button>
-                    <button type="button" onclick="downloadHtmlWithEmbeddedConfig()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs">
-                        📥 設定埋め込み済 index.html を保存 (GitHub用)
-                    </button>
                 </div>
+                <p class="text-[11px] text-amber-200/90 bg-amber-500/10 border border-amber-500/30 rounded-xl p-2.5 leading-relaxed">
+                    💡 <strong>他の人が開いても同じ画面に同期させるには：</strong><br>
+                    上の枠に <code>firebaseConfig</code> を貼って「① 保存して接続」を押したあと、<strong>「📋 ② GitHub貼付用の完成コード全文をコピー」</strong>（または「📥 保存」）を押し、そのコードで<strong>GitHubの index.html を上書き</strong>してください。これで全員が同じデータベースに自動接続されます！
+                </p>
 
                 <!-- Rules Copy Helper -->
                 <div class="pt-2 border-t border-slate-800/80 space-y-2 text-[11px] text-slate-300">
@@ -756,7 +760,13 @@
         let rtdbPollTimer = null;
         let isApplyingRemoteUpdate = false;
         let hasFetchedInitialCloudDoc = false;
+        let cleanTemplateHtml = '';
         let appId = typeof __app_id !== 'undefined' ? __app_id : 'bouki-bakufu-hub';
+
+        // 起動直後のクリーンなHTMLテンプレートを保持（GitHub書き出し用）
+        try {
+            cleanTemplateHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        } catch (e) {}
 
         // ------------------------------------------
         // UTILITIES & SOUND
@@ -1022,7 +1032,7 @@
             return [...new Set(urls)];
         }
 
-        function mergeRemotePayloadIntoLocalState(parsed) {
+        function mergeRemotePayloadIntoLocalState(parsed, isDirectRealtimeEvent = false) {
             if (!parsed || typeof parsed !== 'object') return false;
             let neededLocalProtection = false;
 
@@ -1030,18 +1040,25 @@
                 const remoteM = (parsed.members && parsed.members[idx]) ? parsed.members[idx] : null;
                 if (!remoteM) return localM;
 
-                const localHasCustom = !isDefaultMemberName(localM.name);
-                const remoteIsDefault = isDefaultMemberName(remoteM.name);
+                const remoteHasCustom = !isDefaultMemberName(remoteM.name);
+                const localIsDefault = isDefaultMemberName(localM.name);
 
-                if (localHasCustom && remoteIsDefault) {
-                    neededLocalProtection = true;
-                    return localM;
+                // クラウド側に名前が設定されており、手元が初期名なら必ずクラウド側を採用
+                if (remoteHasCustom && localIsDefault) {
+                    return { ...localM, ...remoteM };
                 }
-                if ((localM.updatedAt || 0) > (remoteM.updatedAt || 0)) {
-                    neededLocalProtection = true;
-                    return localM;
+                // リアルタイム受信時はクラウドの変更を優先反映
+                if (isDirectRealtimeEvent) {
+                    if (isDefaultMemberName(remoteM.name) && !localIsDefault) {
+                        return localM;
+                    }
+                    return { ...localM, ...remoteM };
                 }
-                return { ...localM, ...remoteM };
+                if ((remoteM.updatedAt || 0) >= (localM.updatedAt || 0)) {
+                    return { ...localM, ...remoteM };
+                }
+                neededLocalProtection = true;
+                return localM;
             });
 
             const localSchedules = appState.schedules || {};
@@ -1053,43 +1070,44 @@
                 const locDay = localSchedules[dateKey];
                 const remDay = remoteSchedules[dateKey];
                 if (locDay && !remDay) {
-                    mergedSchedules[dateKey] = locDay;
-                    if (locDay.updatedAt) neededLocalProtection = true;
+                    mergedSchedules[dateKey] = isDirectRealtimeEvent ? locDay : locDay;
                 } else if (!locDay && remDay) {
                     mergedSchedules[dateKey] = remDay;
                 } else if (locDay && remDay) {
-                    const locTime = locDay.updatedAt || 0;
-                    const remTime = remDay.updatedAt || 0;
-                    if (locTime > remTime) {
-                        mergedSchedules[dateKey] = locDay;
-                        neededLocalProtection = true;
+                    if (isDirectRealtimeEvent) {
+                        mergedSchedules[dateKey] = {
+                            ...locDay,
+                            ...remDay,
+                            availability: {
+                                ...(locDay.availability || {}),
+                                ...(remDay.availability || {})
+                            }
+                        };
                     } else {
-                        mergedSchedules[dateKey] = remDay;
+                        const locTime = locDay.updatedAt || 0;
+                        const remTime = remDay.updatedAt || 0;
+                        mergedSchedules[dateKey] = remTime >= locTime ? remDay : locDay;
                     }
                 }
             });
 
-            const remoteUpdatedAt = parsed.hubUpdatedAt || 0;
-            const localUpdatedAt = appState.hubUpdatedAt || 0;
-            const preferRemoteCollections = remoteUpdatedAt >= localUpdatedAt;
-
             appState = {
                 ...appState,
                 ...parsed,
-                hubUpdatedAt: Math.max(localUpdatedAt, remoteUpdatedAt),
+                hubUpdatedAt: Math.max(appState.hubUpdatedAt || 0, parsed.hubUpdatedAt || 0, Date.now()),
                 members: smartMergedMembers,
                 schedules: mergedSchedules,
-                games: (preferRemoteCollections && Array.isArray(parsed.games) && parsed.games.length > 0)
+                games: (Array.isArray(parsed.games) && parsed.games.length > 0)
                     ? parsed.games
                     : (appState.games || []),
                 arcadeScores: parsed.arcadeScores || appState.arcadeScores,
-                chronicles: (preferRemoteCollections && Array.isArray(parsed.chronicles))
+                chronicles: Array.isArray(parsed.chronicles)
                     ? parsed.chronicles
                     : (appState.chronicles || []),
-                expenses: (preferRemoteCollections && Array.isArray(parsed.expenses))
+                expenses: Array.isArray(parsed.expenses)
                     ? parsed.expenses
                     : (appState.expenses || []),
-                sharedMemo: preferRemoteCollections && typeof parsed.sharedMemo === 'string'
+                sharedMemo: typeof parsed.sharedMemo === 'string'
                     ? parsed.sharedMemo
                     : appState.sharedMemo,
                 discordConfig: (parsed.discordConfig && parsed.discordConfig.webhookUrl)
@@ -1105,14 +1123,14 @@
             const urls = getCandidateRtdbUrls(activeFirebaseConfig);
             for (const base of urls) {
                 try {
-                    const res = await fetch(`${base}/bouki_bakufu_hub/main_hub.json`);
+                    const res = await fetch(`${base}/bouki_bakufu_hub/main_hub.json?t=${Date.now()}`, { cache: 'no-store' });
                     if (res.ok) {
                         const data = await res.json();
                         activeFirebaseConfig.databaseURL = base;
                         if (data && data.payload) {
                             const parsed = typeof data.payload === 'string' ? JSON.parse(data.payload) : data.payload;
                             isApplyingRemoteUpdate = true;
-                            mergeRemotePayloadIntoLocalState(parsed);
+                            mergeRemotePayloadIntoLocalState(parsed, true);
                             saveStateToLocalStorage();
                             renderAll();
                             isApplyingRemoteUpdate = false;
@@ -1251,7 +1269,7 @@
                         try {
                             const parsed = typeof data.payload === 'string' ? JSON.parse(data.payload) : data.payload;
                             isApplyingRemoteUpdate = true;
-                            mergeRemotePayloadIntoLocalState(parsed);
+                            mergeRemotePayloadIntoLocalState(parsed, true);
                             saveStateToLocalStorage();
                             renderAll();
                             isApplyingRemoteUpdate = false;
@@ -3171,37 +3189,55 @@
 
         window.saveCustomFirebaseConfig = async function() {
             const fbEl = document.getElementById('customFirebaseConfigInput');
-            const raw = fbEl ? fbEl.value.trim() : '';
-            const parsed = parseFlexibleFirebaseConfig(raw);
-            if (!parsed) {
-                showToast('⚠️ Firebase設定の形式が正しくありません。const firebaseConfig = { ... }; をそのまま貼り付けてください');
+            if (!fbEl || !fbEl.value.trim()) {
+                showToast('⚠️ Firebaseの firebaseConfig を貼り付けてください');
+                return;
+            }
+            const parsed = parseFlexibleFirebaseConfig(fbEl.value.trim());
+            if (!parsed || !parsed.apiKey || !parsed.projectId) {
+                showToast('⚠️ apiKey または projectId が見つかりません。firebaseConfig のコードを確認してください');
                 return;
             }
             localStorage.setItem(STORAGE_KEY_CUSTOM_FB, JSON.stringify(parsed, null, 2));
+            fbEl.value = JSON.stringify(parsed, null, 2);
             playUiSound('match');
-            showToast('🔥 Firebase設定を保存しました！リアルタイム同期を開始します...');
+            showToast('🔥 Firebase設定を保存しました！接続を開始します...');
             await initRealtimeSync();
-            await pushStateToCloud();
         };
 
-        window.downloadHtmlWithEmbeddedConfig = function() {
+        function buildEmbeddedHtmlString() {
             const fbEl = document.getElementById('customFirebaseConfigInput');
             const raw = (fbEl && fbEl.value.trim()) || localStorage.getItem(STORAGE_KEY_CUSTOM_FB) || '';
             const parsed = parseFlexibleFirebaseConfig(raw) || EMBEDDED_FIREBASE_CONFIG || activeFirebaseConfig;
-            if (!parsed) {
+            if (!parsed || !parsed.apiKey) {
                 showToast('⚠️ 先に上の枠へFirebaseの firebaseConfig を貼り付けてください');
-                return;
+                return null;
             }
 
-            closeDiscordSettingsModal();
-            closeOnboardingModal();
-            closeDateModal();
-
-            let fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-            fullHtml = fullHtml.replace(
+            const baseHtml = cleanTemplateHtml || ('<!DOCTYPE html>\n' + document.documentElement.outerHTML);
+            return baseHtml.replace(
                 /const EMBEDDED_FIREBASE_CONFIG\s*=\s*(null|\{[\s\S]*?\});/,
                 `const EMBEDDED_FIREBASE_CONFIG = ${JSON.stringify(parsed)};`
             );
+        }
+
+        window.copyCleanHtmlWithEmbeddedConfig = function() {
+            const fullHtml = buildEmbeddedHtmlString();
+            if (!fullHtml) return;
+
+            const temp = document.createElement('textarea');
+            temp.value = fullHtml;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            temp.remove();
+            playUiSound('match');
+            showToast('📋 Firebase設定が埋め込まれた完成コード全文をコピーしました！GitHubの index.html に貼り付けてください');
+        };
+
+        window.downloadHtmlWithEmbeddedConfig = function() {
+            const fullHtml = buildEmbeddedHtmlString();
+            if (!fullHtml) return;
 
             const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
             const url = URL.createObjectURL(blob);
@@ -3213,7 +3249,7 @@
             a.remove();
             URL.revokeObjectURL(url);
             playUiSound('match');
-            showToast('📥 Firebase設定埋め込み済みの index.html を保存しました！');
+            showToast('📥 Firebase設定埋め込み済みの index.html を保存しました！GitHubにアップロードしてください');
         };
 
         // ------------------------------------------
