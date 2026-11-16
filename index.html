@@ -3,20 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="棒木幕府">
     <title>棒木幕府 — 3人専用ゲーミング予定＆投票ハブ</title>
-
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- Tone.js for UI Sound Effects -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -29,491 +20,359 @@
                         gaming: {
                             bg: '#090d16',
                             card: '#111827',
-                            border: '#1f2937',
-                            accent: '#f59e0b',
-                            neon: '#10b981'
+                            border: '#1f2937'
                         }
                     }
                 }
             }
         };
     </script>
-
     <style>
         html, body {
             max-width: 100vw;
             overflow-x: hidden;
             background-color: #090d16;
-            color: #f3f4f6;
+            color: #f8fafc;
+            font-family: 'Inter', 'Noto Sans JP', sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
-        /* Match Cell Color-Only Highlights (No Clutter Text) */
+        /* カレンダーのマッチ日を文字なしで色変化のみで強調 */
         .match-full-cell {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.34), rgba(5, 150, 105, 0.18)) !important;
-            border: 2px solid #10b981 !important;
-            box-shadow: 0 0 18px rgba(16, 185, 129, 0.38), inset 0 0 12px rgba(16, 185, 129, 0.22);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.38), rgba(5, 150, 105, 0.22)) !important;
+            border: 2px solid #34d399 !important;
+            box-shadow: 0 0 18px rgba(16, 185, 129, 0.35);
         }
         .match-partial-cell {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.30), rgba(217, 119, 6, 0.14)) !important;
-            border: 2px solid #f59e0b !important;
-            box-shadow: 0 0 14px rgba(245, 158, 11, 0.28), inset 0 0 10px rgba(245, 158, 11, 0.16);
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.34), rgba(217, 119, 6, 0.18)) !important;
+            border: 2px solid #fbbf24 !important;
+            box-shadow: 0 0 14px rgba(245, 158, 11, 0.28);
         }
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #090d16;
+            background: #0f172a;
         }
         ::-webkit-scrollbar-thumb {
-            background: #374151;
+            background: #334155;
             border-radius: 9999px;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col selection:bg-amber-500 selection:text-slate-950 pb-20">
+<body class="min-h-screen flex flex-col selection:bg-amber-500 selection:text-slate-950">
 
     <!-- ==========================================
-         TOP HEADER BAR
+         TOP STICKY HEADER
          ========================================== -->
-    <header class="sticky top-0 z-30 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80 px-2.5 sm:px-5 py-2.5">
-        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-2">
-            <!-- Brand Title -->
-            <div class="flex items-center gap-2.5 min-w-0">
-                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-amber-500 via-orange-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-amber-500/20 shrink-0 border border-amber-300/40">
-                    <span class="text-lg sm:text-xl">🏯</span>
-                </div>
-                <div class="min-w-0">
-                    <div class="flex items-center gap-1.5">
-                        <h1 class="text-base sm:text-xl font-black tracking-tight text-white truncate">棒木幕府</h1>
-                        <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">3人評定所</span>
+    <header class="sticky top-0 z-30 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80">
+        <div class="max-w-5xl mx-auto px-3 sm:px-5 py-2.5 flex flex-col gap-2">
+            <!-- Top Row: Title + Controls -->
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                    <div class="w-9 h-9 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-slate-950 font-black text-lg shadow-lg shadow-amber-500/20 shrink-0">
+                        🏯
                     </div>
-                    <p class="text-[10px] sm:text-xs text-slate-400 truncate">3人の予定・やりたいゲーム投票・ミニゲーム番付</p>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-1.5">
+                            <h1 class="text-base sm:text-lg font-black tracking-tight text-white truncate">棒木幕府</h1>
+                            <span class="text-[10px] font-black px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 shrink-0">3人専用</span>
+                        </div>
+                        <p id="nextMatchBannerText" class="text-[10px] sm:text-xs text-slate-400 truncate">カレンダーの日付をタップして3人の「◯・△・×」を入力しましょう</p>
+                    </div>
+                </div>
+
+                <!-- Right Action Buttons -->
+                <div class="flex items-center gap-1.5 shrink-0">
+                    <button type="button" onclick="openDiscordSettingsModal()" class="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-bold flex items-center gap-1.5 transition" title="リアルタイム同期の状態と設定">
+                        <span id="headerSyncDot" class="w-2 h-2 rounded-full bg-rose-500"></span>
+                        <span id="headerSyncText" class="text-[11px] font-black text-slate-200">同期:確認中</span>
+                    </button>
+                    <button type="button" onclick="openOnboardingModal()" class="px-2.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-black flex items-center gap-1 transition">
+                        <i class="fa-solid fa-user-gear"></i>
+                        <span class="hidden sm:inline">マイアカウント</span>
+                    </button>
+                    <button type="button" onclick="openDiscordSettingsModal()" class="px-2.5 py-1.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 text-xs font-black flex items-center gap-1 transition">
+                        <span id="discordStatusDot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+                        <i class="fa-brands fa-discord"></i>
+                        <span class="hidden sm:inline">伝令・同期設定</span>
+                    </button>
                 </div>
             </div>
 
-            <!-- Active Member Selector (3 Players) -->
-            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 bg-slate-900/90 p-1.5 rounded-2xl border border-gaming-border max-w-full">
-                <span class="text-[11px] text-slate-400 px-2 hidden lg:inline"><i class="fa-solid fa-lock mr-1 text-amber-400"></i>ログイン中:</span>
-                <div id="memberSwitcherContainer" class="flex items-center gap-1 sm:gap-1.5 flex-wrap"></div>
-                <button onclick="openDiscordSettingsModal()" title="Discord自動通知設定" class="px-2 sm:px-2.5 h-8 rounded-xl bg-[#5865F2]/25 hover:bg-[#5865F2]/40 border border-[#5865F2]/50 text-indigo-200 text-xs font-bold flex items-center gap-1.5 transition shrink-0">
-                    <i class="fa-brands fa-discord text-[#5865F2]"></i>
-                    <span class="hidden sm:inline">伝令設定</span>
-                    <span id="discordStatusDot" class="w-2 h-2 rounded-full bg-slate-500"></span>
+            <!-- Second Row: Active Member Switcher & Quick Signal -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-900">
+                <div class="flex items-center gap-1.5 min-w-0">
+                    <span class="text-[10px] font-black text-slate-400 shrink-0">操作枠:</span>
+                    <div id="memberSwitcherContainer" class="flex items-center gap-1 min-w-0"></div>
+                </div>
+                <div class="flex items-center gap-1 overflow-x-auto max-w-full pb-0.5">
+                    <button type="button" onclick="setQuickNowSignal('🟢 今すぐ遊べる！')" class="px-2 py-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-[10px] font-bold shrink-0">🟢 今遊べる</button>
+                    <button type="button" onclick="setQuickNowSignal('🕘 21時〜OK')" class="px-2 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-[10px] font-bold shrink-0">🕘 21時〜</button>
+                    <button type="button" onclick="setQuickNowSignal('🛁 風呂・飯中')" class="px-2 py-1 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/30 text-sky-300 text-[10px] font-bold shrink-0">🛁 離席中</button>
+                </div>
+            </div>
+
+            <!-- 3 Members Status Pills -->
+            <div id="memberStatusPills" class="grid grid-cols-3 gap-1.5"></div>
+
+            <!-- Main Navigation Tabs -->
+            <div class="grid grid-cols-4 gap-1 bg-slate-900/90 p-1 rounded-2xl border border-slate-800">
+                <button type="button" id="tabBtn-calendar" onclick="switchMainTab('calendar')" class="py-2 sm:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow flex items-center justify-center gap-1.5 transition">
+                    <i class="fa-solid fa-calendar-check"></i><span>日程評定</span>
                 </button>
-                <button onclick="openOnboardingModal()" title="マイアカウント設定・ログイン切替" class="px-2 sm:px-2.5 h-8 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 border border-amber-500/40 text-amber-200 text-xs font-bold flex items-center gap-1.5 transition shrink-0">
-                    <i class="fa-solid fa-user-lock"></i>
-                    <span class="hidden sm:inline">マイアカウント</span>
+                <button type="button" id="tabBtn-games" onclick="switchMainTab('games')" class="py-2 sm:py-2.5 px-2 rounded-xl font-bold text-xs sm:text-sm text-slate-300 hover:bg-slate-800/70 flex items-center justify-center gap-1.5 transition">
+                    <i class="fa-solid fa-gamepad"></i><span>ゲーム投票</span>
+                    <span id="unanimousCountBadge" class="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500 text-slate-950 font-black">1</span>
+                </button>
+                <button type="button" id="tabBtn-arcade" onclick="switchMainTab('arcade')" class="py-2 sm:py-2.5 px-2 rounded-xl font-bold text-xs sm:text-sm text-slate-300 hover:bg-slate-800/70 flex items-center justify-center gap-1.5 transition">
+                    <i class="fa-solid fa-bolt"></i><span>遊戯場</span>
+                </button>
+                <button type="button" id="tabBtn-tools" onclick="switchMainTab('tools')" class="py-2 sm:py-2.5 px-2 rounded-xl font-bold text-xs sm:text-sm text-slate-300 hover:bg-slate-800/70 flex items-center justify-center gap-1.5 transition">
+                    <i class="fa-solid fa-scroll"></i><span>幕府ツール</span>
                 </button>
             </div>
         </div>
     </header>
 
     <!-- ==========================================
-         LIVE STATUS & QUICK SIGNAL BAR
-         ========================================== -->
-    <section class="max-w-6xl w-full mx-auto px-2.5 sm:px-5 pt-3">
-        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 sm:p-3 flex flex-col gap-2.5">
-            <!-- 3 Players Current Signal Cards -->
-            <div id="memberStatusPills" class="grid grid-cols-3 gap-1.5 sm:gap-2.5"></div>
-
-            <!-- 1-Tap Quick Signal Buttons -->
-            <div class="flex flex-wrap items-center justify-between gap-2 pt-1.5 border-t border-slate-800/80">
-                <div class="flex items-center gap-1.5 text-[11px] font-bold text-amber-300">
-                    <i class="fa-solid fa-bolt"></i>
-                    <span>今すぐ状況スタンプ:</span>
-                </div>
-                <div class="flex flex-wrap items-center gap-1 sm:gap-1.5">
-                    <button onclick="setQuickNowSignal('🟢 今すぐ遊べる！')" class="px-2.5 py-1 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-200 text-[11px] font-bold transition">🟢 今すぐ遊べる</button>
-                    <button onclick="setQuickNowSignal('♨️ 風呂・飯（後で合流）')" class="px-2.5 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 text-[11px] font-bold transition">♨️ 風呂・飯</button>
-                    <button onclick="setQuickNowSignal('📺 作業・画面共有OK')" class="px-2.5 py-1 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-200 text-[11px] font-bold transition">📺 雑談・作業OK</button>
-                    <button onclick="setQuickNowSignal('💤 今日は休息・寝落ち')" class="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 text-[11px] font-bold transition">💤 休息</button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ==========================================
-         MAIN NAVIGATION TABS
-         ========================================== -->
-    <nav class="max-w-6xl w-full mx-auto px-2.5 sm:px-5 pt-3">
-        <div class="grid grid-cols-4 gap-1.5 sm:gap-2 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800">
-            <button id="tabBtn-calendar" onclick="switchMainTab('calendar')" class="py-2 sm:py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow flex items-center justify-center gap-1.5 transition">
-                <i class="fa-solid fa-calendar-check"></i>
-                <span class="truncate">予定カレンダー</span>
-            </button>
-            <button id="tabBtn-games" onclick="switchMainTab('games')" class="py-2 sm:py-2.5 px-2 rounded-xl font-bold text-xs sm:text-sm text-slate-300 hover:bg-slate-800/70 flex items-center justify-center gap-1.5 transition">
-                <i class="fa-solid fa-gamepad"></i>
-                <span class="truncate">ゲーム投票</span>
-                <span id="unanimousCountBadge" class="hidden sm:inline-flex px-1.5 py-0.5 text-[10px] rounded-full bg-amber-500/20 text-amber-300 font-black">0</span>
-            </button>
-            <button id="tabBtn-arcade" onclick="switchMainTab('arcade')" class="py-2 sm:py-2.5 px-2 rounded-xl font-bold text-xs sm:text-sm text-slate-300 hover:bg-slate-800/70 flex items-center justify-center gap-1.5 transition">
-                <i class="fa-solid fa-trophy"></i>
-                <span class="truncate">幕府遊戯場</span>
-            </button>
-            <button id="tabBtn-tools" onclick="switchMainTab('tools')" class="py-2 sm:py-2.5 px-2 rounded-xl font-bold text-xs sm:text-sm text-slate-300 hover:bg-slate-800/70 flex items-center justify-center gap-1.5 transition">
-                <i class="fa-solid fa-scroll"></i>
-                <span class="truncate">軍議・番付</span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- ==========================================
          MAIN CONTENT CONTAINER
          ========================================== -->
-    <main class="max-w-6xl w-full mx-auto px-2.5 sm:px-5 py-4 flex-1 space-y-5">
+    <main class="flex-1 max-w-5xl w-full mx-auto px-3 sm:px-5 py-4 space-y-5">
 
-        <!-- ==========================================
-             TAB 1: SCHEDULE CALENDAR (COLOR-ONLY MATCH)
-             ========================================== -->
-        <section id="tabContent-calendar" class="space-y-4">
-            <!-- Next Match Summary Banner -->
-            <div class="bg-gradient-to-r from-emerald-950/70 via-slate-900 to-amber-950/50 border border-emerald-500/30 rounded-2xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                    <div class="w-10 h-10 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-300 text-lg shrink-0">
-                        <i class="fa-solid fa-fire-flame-curved"></i>
+        <!-- TAB 1: CALENDAR SCHEDULE -->
+        <section id="tabContent-calendar" class="space-y-3">
+            <!-- Calendar Toolbar -->
+            <div class="bg-gaming-card border border-gaming-border rounded-3xl p-3 sm:p-4 flex flex-col gap-3">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="changeMonth(-1)" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center transition">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <h2 id="calendarMonthTitle" class="text-base sm:text-xl font-black text-white min-w-[120px] text-center">2025年 5月</h2>
+                        <button type="button" onclick="changeMonth(1)" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center transition">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                        <span id="fullMatchCountText" class="text-xs font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">今月 全員◯ 0日</span>
                     </div>
-                    <div class="min-w-0">
-                        <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-xs font-black text-emerald-300">3人マッチ状況</span>
-                            <span id="fullMatchCountText" class="text-xs font-black px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-500/30">今月 0日</span>
-                        </div>
-                        <p id="nextMatchBannerText" class="text-xs sm:text-sm font-bold text-white truncate mt-0.5">カレンダーの日付をタップして「◯・△・×」を入力しましょう</p>
+
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <button type="button" id="quickStampBtn" onclick="toggleQuickStampMode()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-stamp text-emerald-400"></i><span>連続「◯」スタンプ: OFF</span>
+                        </button>
+                        <button type="button" onclick="markAllWeekendsFree()" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-black transition">
+                            🎉 今週末に◯
+                        </button>
+                        <button type="button" onclick="clearMyMonthSchedule()" class="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-rose-950/60 border border-slate-800 text-slate-400 hover:text-rose-300 text-xs font-bold transition">
+                            クリア
+                        </button>
                     </div>
                 </div>
 
-                <!-- Color Legend (No text inside calendar cells) -->
-                <div class="flex items-center gap-3 text-[11px] font-bold">
-                    <span class="flex items-center gap-1.5 text-emerald-300">
-                        <span class="w-3.5 h-3.5 rounded-md bg-emerald-500/40 border-2 border-emerald-400 inline-block"></span>
-                        全員◯
-                    </span>
-                    <span class="flex items-center gap-1.5 text-amber-300">
-                        <span class="w-3.5 h-3.5 rounded-md bg-amber-500/40 border-2 border-amber-400 inline-block"></span>
-                        3人集合可(△含)
-                    </span>
-                </div>
-            </div>
-
-            <!-- Calendar Controls Bar -->
-            <div class="bg-gaming-card border border-gaming-border rounded-2xl p-3 flex flex-wrap items-center justify-between gap-2">
-                <!-- Month Navigation -->
-                <div class="flex items-center gap-1.5">
-                    <button onclick="changeMonth(-1)" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center transition">
-                        <i class="fa-solid fa-chevron-left text-xs"></i>
-                    </button>
-                    <h2 id="calendarMonthTitle" class="text-sm sm:text-lg font-black text-white px-2 min-w-[115px] text-center">2025年 5月</h2>
-                    <button onclick="changeMonth(1)" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 flex items-center justify-center transition">
-                        <i class="fa-solid fa-chevron-right text-xs"></i>
-                    </button>
+                <!-- Color Legend (No Cluttered Text on Calendar) -->
+                <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400 pt-2 border-t border-slate-800/80">
+                    <div class="flex items-center gap-3">
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-500/60 border border-emerald-400 inline-block"></span><strong class="text-emerald-300">緑発光＝3人全員◯</strong></span>
+                        <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-500/60 border border-amber-400 inline-block"></span><strong class="text-amber-300">金発光＝3人集合可(△含)</strong></span>
+                    </div>
+                    <span class="text-[10px] text-slate-500">※日付マスをタップすると自分の予定を入力できます</span>
                 </div>
 
-                <!-- Fast Input Tools -->
-                <div class="flex flex-wrap items-center gap-1.5">
-                    <button id="quickStampBtn" onclick="toggleQuickStampMode()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1.5 transition">
-                        <i class="fa-solid fa-stamp text-emerald-400"></i>
-                        <span>連続「◯」スタンプ: OFF</span>
-                    </button>
-                    <button onclick="markAllWeekendsFree()" class="px-3 py-1.5 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-200 text-xs font-bold transition">
-                        <i class="fa-solid fa-calendar-week mr-1"></i>今週末に「◯」
-                    </button>
-                    <button onclick="clearMyMonthSchedule()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-950/60 border border-slate-700 text-slate-300 hover:text-rose-200 text-xs font-bold transition">
-                        今月クリア
-                    </button>
+                <!-- Day of week headers -->
+                <div class="grid grid-cols-7 gap-1 sm:gap-1.5 text-center text-[11px] font-black pt-1">
+                    <div class="text-rose-400">日</div>
+                    <div class="text-slate-400">月</div>
+                    <div class="text-slate-400">火</div>
+                    <div class="text-slate-400">水</div>
+                    <div class="text-slate-400">木</div>
+                    <div class="text-slate-400">金</div>
+                    <div class="text-sky-400">土</div>
                 </div>
-            </div>
 
-            <!-- Calendar 7-Column Grid -->
-            <div class="bg-gaming-card border border-gaming-border rounded-3xl p-2 sm:p-4 shadow-xl">
-                <!-- Day of week header -->
-                <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-1.5 text-center text-[11px] sm:text-xs font-black">
-                    <div class="text-rose-400 py-1">日</div>
-                    <div class="text-slate-400 py-1">月</div>
-                    <div class="text-slate-400 py-1">火</div>
-                    <div class="text-slate-400 py-1">水</div>
-                    <div class="text-slate-400 py-1">木</div>
-                    <div class="text-slate-400 py-1">金</div>
-                    <div class="text-sky-400 py-1">土</div>
-                </div>
-                <!-- Days Grid -->
-                <div id="calendarGrid" class="grid grid-cols-7 gap-1 sm:gap-2"></div>
+                <!-- Calendar 7-Col Grid -->
+                <div id="calendarGrid" class="grid grid-cols-7 gap-1 sm:gap-1.5"></div>
             </div>
         </section>
 
-        <!-- ==========================================
-             TAB 2: GAME SEARCH, CATALOG & VOTING
-             ========================================== -->
-        <section id="tabContent-games" class="space-y-5 hidden">
-            <!-- Online Game Icon Search & Manual Add -->
-            <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 sm:p-5 space-y-4">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                        <h2 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                            <i class="fa-solid fa-magnifying-glass text-amber-400"></i>
-                            <span>ネットからゲームアイコン検索＆リスト登録</span>
-                        </h2>
-                        <p class="text-xs text-slate-400">公式ストアやSteamデータベースからアプリアイコン付きで投票ボードに追加できます</p>
-                    </div>
-                </div>
-
-                <!-- Search Bar -->
+        <!-- TAB 2: GAME VOTING BOARD -->
+        <section id="tabContent-games" class="hidden space-y-4">
+            <!-- Add / Search Game Box -->
+            <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 space-y-3">
                 <div class="flex flex-col sm:flex-row gap-2">
-                    <div class="relative flex-1">
-                        <input
-                            type="text"
-                            id="gameSearchInput"
-                            onkeydown="if(event.key==='Enter') searchGamesOnline()"
-                            placeholder="ゲーム名を入力（例: モンハン, マイクラ, Apex, マリオパーティ, 桃鉄...）"
-                            class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 focus:border-amber-400 focus:outline-none text-xs sm:text-sm text-white"
-                        >
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                    </div>
-                    <div class="flex gap-2">
-                        <select id="gamePlatformSelect" class="px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs font-bold text-slate-200">
-                            <option value="CrossPlay">🌐 クロスプレイ / 全機種</option>
-                            <option value="PC / Steam">💻 PC / Steam</option>
-                            <option value="Switch">🎮 Switch</option>
-                            <option value="PS5 / PS4">🎯 PS5 / PS4</option>
-                            <option value="スマホ">📱 スマホアプリ</option>
-                            <option value="その他">🎲 その他・自由企画</option>
+                    <input id="gameSearchInput" type="text" placeholder="やりたいゲーム名を入力（例: モンハン、エペ、マリオパーティ...）" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-amber-400">
+                    <div class="flex items-center gap-1.5">
+                        <select id="gamePlatformSelect" class="bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-2.5 text-xs text-slate-200 font-bold">
+                            <option value="CrossPlay">CrossPlay</option>
+                            <option value="PC / Steam">PC / Steam</option>
+                            <option value="Switch">Switch</option>
+                            <option value="PS5">PS5</option>
+                            <option value="スマホ">スマホ</option>
+                            <option value="その他">その他</option>
                         </select>
-                        <button onclick="searchGamesOnline()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs sm:text-sm shrink-0 transition">
-                            検索
+                        <button type="button" onclick="searchGamesOnline()" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs font-black shrink-0">
+                            🔍 検索
                         </button>
-                        <button onclick="addCustomGameFromInput()" title="入力した文字でそのまま追加" class="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs shrink-0 transition">
+                        <button type="button" onclick="addCustomGameFromInput()" class="px-3.5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black shrink-0">
                             ＋直接追加
                         </button>
                     </div>
                 </div>
 
-                <!-- Online Search Results Tray -->
+                <!-- Search Results Tray -->
                 <div id="searchResultsTray" class="hidden bg-slate-950/90 border border-slate-800 rounded-2xl p-3 space-y-2">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-amber-300"><i class="fa-solid fa-cloud-arrow-down mr-1"></i>ネット検索結果（タップで投票リストへ追加）</span>
-                        <button onclick="document.getElementById('searchResultsTray').classList.add('hidden')" class="text-xs text-slate-400 hover:text-white">閉じる</button>
+                        <span class="text-xs font-black text-amber-300">検索結果（タップで投票ボードに追加）</span>
+                        <button type="button" onclick="document.getElementById('searchResultsTray').classList.add('hidden')" class="text-xs text-slate-400 hover:text-white">閉じる</button>
                     </div>
-                    <div id="searchResultsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 max-h-64 overflow-y-auto p-1"></div>
+                    <div id="searchResultsList" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
                 </div>
 
-                <!-- Preset Genre Catalog (Auto-Fetches Real App Icons) -->
-                <div class="space-y-2.5 pt-2 border-t border-slate-800">
-                    <div class="flex flex-wrap items-center justify-between gap-2">
-                        <span class="text-xs font-black text-slate-300"><i class="fa-solid fa-layer-group text-indigo-400 mr-1"></i>ジャンル別おすすめカタログ＆その他の選択肢</span>
-                        <div class="flex flex-wrap gap-1">
-                            <button id="catTab-popular" onclick="switchCatalogCategory('popular')" class="px-2.5 py-1 rounded-xl text-[11px] font-black bg-amber-500 text-slate-950 transition">🔥 定番マルチ・FPS</button>
-                            <button id="catTab-party" onclick="switchCatalogCategory('party')" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-slate-300 border border-slate-800 transition">🎉 パーティ・Switch</button>
-                            <button id="catTab-coop" onclick="switchCatalogCategory('coop')" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-slate-300 border border-slate-800 transition">🌲 サバイバル・協力</button>
-                            <button id="catTab-mobile" onclick="switchCatalogCategory('mobile')" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-slate-300 border border-slate-800 transition">📱 スマホ・クロス</button>
-                            <button id="catTab-other" onclick="switchCatalogCategory('other')" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-slate-300 border border-slate-800 transition">🎲 その他・自由選択肢</button>
-                        </div>
+                <!-- Preset Catalog Categories -->
+                <div class="pt-2 border-t border-slate-800/80 space-y-2">
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <span class="text-[11px] font-black text-slate-400 mr-1">定番カタログ:</span>
+                        <button type="button" id="catTab-popular" onclick="switchCatalogCategory('popular')" class="px-2.5 py-1 rounded-xl text-[11px] font-black bg-amber-500 text-slate-950 transition">🔥 定番人気</button>
+                        <button type="button" id="catTab-party" onclick="switchCatalogCategory('party')" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-slate-300 border border-slate-800 transition">🎲 パーティ</button>
+                        <button type="button" id="catTab-coop" onclick="switchCatalogCategory('coop')" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-slate-300 border border-slate-800 transition">⚔️ 協力サバイバル</button>
+                        <button type="button" id="catTab-mobile" onclick="switchCatalogCategory('mobile')" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-slate-300 border border-slate-800 transition">📱 スマホ・卓上</button>
+                        <button type="button" id="catTab-other" onclick="switchCatalogCategory('other')" class="px-2.5 py-1 rounded-xl text-[11px] font-bold bg-slate-900 text-slate-300 border border-slate-800 transition">💬 その他</button>
                     </div>
-                    <div id="catalogGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2"></div>
+                    <div id="catalogGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
                 </div>
             </div>
 
-            <!-- Voting Board Filter & Grid -->
-            <div class="space-y-3">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                        <i class="fa-solid fa-fire text-amber-400"></i>
-                        <span>3人のやりたいゲーム投票ボード</span>
-                    </h3>
-                    <div class="flex flex-wrap gap-1.5">
-                        <button id="statusFilter-active" onclick="setGameStatusFilter('active')" class="px-3 py-1.5 rounded-xl text-xs font-black bg-amber-500 text-slate-950 transition">🔥 投票中・現役</button>
-                        <button id="statusFilter-backlog" onclick="setGameStatusFilter('backlog')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 border border-slate-800 transition">🌱 候補</button>
-                        <button id="statusFilter-archived" onclick="setGameStatusFilter('archived')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 border border-slate-800 transition">🏆 殿堂入り・休止</button>
-                        <button id="statusFilter-all" onclick="setGameStatusFilter('all')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 border border-slate-800 transition">すべて</button>
-                    </div>
+            <!-- Filter Tabs & Game Voting Cards -->
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-1.5">
+                    <button type="button" id="statusFilter-active" onclick="setGameStatusFilter('active')" class="px-3 py-1.5 rounded-xl text-xs font-black bg-amber-500 text-slate-950 transition">🔥 現役プレイ中</button>
+                    <button type="button" id="statusFilter-archived" onclick="setGameStatusFilter('archived')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 border border-slate-800 transition">🏆 殿堂・休止</button>
+                    <button type="button" id="statusFilter-all" onclick="setGameStatusFilter('all')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 text-slate-300 border border-slate-800 transition">すべて</button>
                 </div>
-
-                <div id="gameVotingGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
             </div>
+
+            <div id="gameVotingGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
         </section>
 
-        <!-- ==========================================
-             TAB 3: BAKUFU ARCADE (4 MINI-GAMES & LEADERBOARD)
-             ========================================== -->
-        <section id="tabContent-arcade" class="space-y-5 hidden">
-            <!-- 3-Player Real-time Leaderboard -->
-            <div class="bg-gaming-card border border-amber-500/30 rounded-3xl p-4 sm:p-5 space-y-3">
-                <div class="flex items-center justify-between flex-wrap gap-2">
-                    <h2 class="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                        <i class="fa-solid fa-crown text-amber-400"></i>
-                        <span>棒木幕府 遊戯場・3人リアルタイム番付</span>
-                    </h2>
-                    <span class="text-xs text-slate-400">自己ベストを更新すると自動で3人の画面に同期されます</span>
-                </div>
+        <!-- TAB 3: MINI-GAME ARCADE -->
+        <section id="tabContent-arcade" class="hidden space-y-4">
+            <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 space-y-3">
+                <h3 class="text-sm sm:text-base font-black text-amber-300 flex items-center gap-2">
+                    <i class="fa-solid fa-trophy"></i><span>棒木幕府 3人スコア番付（リアルタイム共有）</span>
+                </h3>
                 <div id="arcadeLeaderboardGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-2.5"></div>
             </div>
 
-            <!-- 4 Mini-Games Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- MINI-GAME 1: IAI SLASH (Reaction Speed) -->
-                <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 space-y-3 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">MINI GAME 01</span>
-                            <span id="iaiBestBadge" class="text-xs font-black text-amber-300">自己ベスト: -- ms</span>
-                        </div>
-                        <h3 class="text-base font-black text-white mt-1">⚡ 刹那の居合斬り（反射神経対決）</h3>
-                        <p class="text-xs text-slate-400">画面が緑色に光って「斬れ！！」と出た瞬間にタップ！1000分の1秒を競います。</p>
+                <!-- Game 1: Iai Slash -->
+                <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-black text-white">⚡ 居合斬り反射勝負</h4>
+                        <span id="iaiBestBadge" class="text-[11px] font-bold text-emerald-300">自己ベスト: -- ms</span>
                     </div>
-                    <button id="iaiArenaBox" onclick="handleIaiTap()" class="w-full h-36 rounded-2xl bg-slate-900 border-2 border-slate-700 hover:border-amber-400 flex flex-col items-center justify-center gap-1 transition select-none">
-                        <span id="iaiStatusTitle" class="text-lg font-black text-white">⚔️ タップして居合開始</span>
-                        <span id="iaiStatusSub" class="text-xs text-slate-400">合図が出る前に押すと「お手付き」になります</span>
+                    <button type="button" id="iaiArenaBox" onclick="handleIaiTap()" class="w-full h-36 rounded-2xl bg-slate-900 border-2 border-slate-700 flex flex-col items-center justify-center gap-1 transition select-none">
+                        <span id="iaiStatusTitle" class="text-lg font-black text-amber-300">⚔️ タップして居合開始</span>
+                        <span id="iaiStatusSub" class="text-xs text-slate-400">画面が緑色に光った瞬間に斬れ！</span>
                     </button>
                 </div>
 
-                <!-- MINI-GAME 2: TAIKO DRUM RUSH (10s Rapid Tap) -->
-                <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 space-y-3 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300">MINI GAME 02</span>
-                            <span id="taikoBestBadge" class="text-xs font-black text-amber-300">自己ベスト: 0 連打</span>
-                        </div>
-                        <h3 class="text-base font-black text-white mt-1">🥁 陣太鼓・10秒間鬼連打</h3>
-                        <p class="text-xs text-slate-400">制限時間10秒で何回太鼓を叩けるか競う連打チャレンジ！</p>
+                <!-- Game 2: Taiko Drum -->
+                <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-black text-white">🥁 10秒陣太鼓連打</h4>
+                        <span id="taikoBestBadge" class="text-[11px] font-bold text-rose-300">自己ベスト: 0 連打</span>
                     </div>
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between text-xs font-bold px-1">
-                            <span id="taikoTimerText" class="text-rose-300">残り時間: 10.0秒</span>
-                            <span id="taikoCountText" class="text-amber-300 text-sm font-black">0 連打</span>
-                        </div>
-                        <button id="taikoDrumBtn" onclick="handleTaikoTap()" class="w-full h-28 rounded-2xl bg-gradient-to-b from-rose-600 to-amber-700 hover:from-rose-500 hover:to-amber-600 active:scale-95 text-white font-black text-base shadow-lg flex flex-col items-center justify-center transition select-none">
-                            <span class="text-2xl">🥁</span>
-                            <span id="taikoBtnLabel">タップで連打スタート！</span>
-                        </button>
+                    <div class="flex items-center justify-between text-xs text-slate-300">
+                        <span id="taikoTimerText">残り時間: 10.0秒</span>
+                        <span id="taikoCountText" class="font-black text-amber-300 text-sm">0 連打</span>
                     </div>
+                    <button type="button" onclick="handleTaikoTap()" class="w-full h-28 rounded-2xl bg-gradient-to-br from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-black text-base shadow-lg active:scale-95 transition select-none">
+                        <span id="taikoBtnLabel">🥁 タップで10秒連打スタート！</span>
+                    </button>
                 </div>
 
-                <!-- MINI-GAME 3: MEMORY CARDS (12-Card Match) -->
-                <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 space-y-3 flex flex-col justify-between">
+                <!-- Game 3: Memory Cards -->
+                <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 space-y-3">
                     <div class="flex items-center justify-between">
-                        <div>
-                            <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300">MINI GAME 03</span>
-                            <h3 class="text-base font-black text-white mt-1">🃏 幕府絵札合わせ（神経衰弱）</h3>
-                        </div>
-                        <div class="text-right">
-                            <div id="memoryMovesText" class="text-xs font-black text-indigo-300">手数: 0手</div>
-                            <button onclick="initMemoryGame()" class="text-[11px] text-amber-300 underline font-bold">シャッフルし直す</button>
+                        <h4 class="text-sm font-black text-white">🃏 幕府家紋 絵札合わせ</h4>
+                        <div class="flex items-center gap-2">
+                            <span id="memoryMovesText" class="text-xs font-bold text-indigo-300">手数: 0手</span>
+                            <button type="button" onclick="initMemoryGame()" class="px-2 py-1 rounded-lg bg-slate-800 text-[10px] font-bold text-slate-300">シャッフル</button>
                         </div>
                     </div>
                     <div id="memoryBoardGrid" class="grid grid-cols-4 gap-2"></div>
                 </div>
 
-                <!-- MINI-GAME 4: BAKUFU BOMB ROULETTE (12 Fuses) -->
-                <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 space-y-3 flex flex-col justify-between">
+                <!-- Game 4: Bomb Roulette -->
+                <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 space-y-3">
                     <div class="flex items-center justify-between">
-                        <div>
-                            <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300">MINI GAME 04</span>
-                            <h3 class="text-base font-black text-white mt-1">💣 幕府爆弾回し（部屋ホスト・罰ゲーム決め）</h3>
-                        </div>
-                        <button onclick="initBombGame()" class="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-amber-300">リセット</button>
+                        <h4 class="text-sm font-black text-white">💣 部屋立てホスト決め爆弾</h4>
+                        <button type="button" onclick="initBombGame()" class="px-2.5 py-1 rounded-lg bg-slate-800 text-[10px] font-bold text-amber-300">リセット</button>
                     </div>
-                    <p id="bombStatusText" class="text-xs font-bold text-slate-300">3人で順番に導火線を1本ずつタップ！ハズレを引くと大爆発します</p>
+                    <p id="bombStatusText" class="text-xs text-slate-400">3人で順番に導火線を1本ずつタップ！ハズレを引くと大爆発します</p>
                     <div id="bombFuseGrid" class="grid grid-cols-4 gap-2"></div>
                 </div>
             </div>
         </section>
 
-        <!-- ==========================================
-             TAB 4: STRATEGY ROOM, ROULETTE, RANKS & LOGS
-             ========================================== -->
-        <section id="tabContent-tools" class="space-y-5 hidden">
-            <!-- Game Roulette & Role Shuffler -->
+        <!-- TAB 4: BAKUFU TOOLS & MEMO -->
+        <section id="tabContent-tools" class="hidden space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Game Roulette -->
-                <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 sm:p-5 space-y-3 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-base font-black text-white flex items-center gap-2">
-                            <i class="fa-solid fa-dice text-amber-400"></i>
-                            <span>今夜のゲーム決定ルーレット</span>
-                        </h3>
-                        <p class="text-xs text-slate-400">投票ボードのゲームからランダムに今夜遊ぶタイトルを決定します</p>
+                <!-- Roulette -->
+                <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 space-y-3">
+                    <h4 class="text-sm font-black text-amber-300">🎰 今夜のゲーム即決ルーレット</h4>
+                    <div id="rouletteDisplayBox" class="h-20 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col items-center justify-center p-3 text-center">
+                        <span class="text-xs text-slate-400">ボタンを押すと投票リストからランダム選出します</span>
                     </div>
-                    <div id="rouletteDisplayBox" class="bg-slate-950 border border-slate-800 rounded-2xl p-4 text-center min-h-[84px] flex flex-col items-center justify-center">
-                        <span class="text-sm font-black text-slate-300">ボタンを押してルーレット回転！</span>
-                    </div>
-                    <button onclick="spinGameRoulette()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:opacity-95 text-slate-950 font-black text-xs sm:text-sm shadow-lg transition">
-                        🎰 ルーレットを回す！
+                    <button type="button" onclick="spinGameRoulette()" class="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow">
+                        🎲 ルーレットを回す
                     </button>
                 </div>
 
-                <!-- 3-Member Role Shuffler & Shibari Omikuji -->
-                <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 sm:p-5 space-y-3 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-base font-black text-white flex items-center gap-2">
-                            <i class="fa-solid fa-shuffle text-indigo-400"></i>
-                            <span>3人の役割シャッフル ＆ 縛りプレイ御触書</span>
-                        </h3>
-                        <p class="text-xs text-slate-400">部屋立てホスト・リーダー決めや、マンネリ防止の縛りお題ガチャ</p>
-                    </div>
-                    <div id="roleShuffleResultBox" class="bg-slate-950 border border-slate-800 rounded-2xl p-3 text-xs text-slate-200 min-h-[84px] flex items-center justify-center text-center">
-                        下のボタンで役割分担や縛りお題を抽選できます
+                <!-- Role & Shibari Omikuji -->
+                <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 space-y-3">
+                    <h4 class="text-sm font-black text-emerald-300">⚔️ 役割分担＆縛りおみくじ</h4>
+                    <div id="roleShuffleResultBox" class="min-h-[80px] rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center p-3 text-center">
+                        <span class="text-xs text-slate-400">ホスト決めや縛りプレイのお題を引けます</span>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="shuffleThreeRoles()" class="py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs transition">
-                            🎲 3人の役割シャッフル
-                        </button>
-                        <button onclick="drawShibariOmikuji()" class="py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-amber-500/40 text-amber-300 font-black text-xs transition">
-                            ⛩️ 縛りプレイおみくじ
-                        </button>
+                        <button type="button" onclick="shuffleThreeRoles()" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs">3人の役割決め</button>
+                        <button type="button" onclick="drawShibariOmikuji()" class="py-2 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-black text-xs">縛りおみくじ</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Vassal Rank & Counter (Win / Carry / Troll) -->
-            <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 sm:p-5 space-y-3">
-                <div class="flex items-center justify-between flex-wrap gap-2">
-                    <h3 class="text-base font-black text-white flex items-center gap-2">
-                        <i class="fa-solid fa-medal text-amber-400"></i>
-                        <span>棒木幕府 家臣番付・戦績カウンター</span>
-                    </h3>
-                    <span class="text-xs text-slate-400">勝利・神キャリー・やらかし回数を記録して幕府内の称号が決まります</span>
-                </div>
+            <!-- Vassal Ranks -->
+            <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 space-y-3">
+                <h4 class="text-sm font-black text-white">👑 幕府戦功・やらかし番付</h4>
                 <div id="vassalRankGrid" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
             </div>
 
-            <!-- Chronicle (Memories) & Expense Split -->
+            <!-- Shared Memo & Chronicles -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Chronicle Log -->
-                <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 sm:p-5 space-y-3">
-                    <h3 class="text-base font-black text-white flex items-center gap-2">
-                        <i class="fa-solid fa-book-journal-whills text-emerald-400"></i>
-                        <span>📜 戦果・神回年表（クリア＆思い出記録）</span>
-                    </h3>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <input type="text" id="chronicleTextInput" placeholder="例: モンハン黒龍3人で討伐達成！" class="flex-1 px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white">
-                        <button onclick="addChronicleEntry()" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shrink-0">記録追加</button>
+                <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-black text-white">📝 3人の共有黒板メモ（部屋パス・VC等）</h4>
+                        <button type="button" onclick="saveSharedMemo()" class="px-3 py-1 rounded-xl bg-amber-500 text-slate-950 font-black text-xs">保存</button>
                     </div>
-                    <div id="chronicleList" class="space-y-2 max-h-56 overflow-y-auto"></div>
+                    <textarea id="sharedMemoTextarea" rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-2xl p-3 text-xs text-slate-200 focus:outline-none focus:border-amber-400"></textarea>
                 </div>
 
-                <!-- 御用金 (Expense Tracker) -->
-                <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 sm:p-5 space-y-3">
-                    <h3 class="text-base font-black text-white flex items-center gap-2">
-                        <i class="fa-solid fa-coins text-amber-400"></i>
-                        <span>💰 幕府の御用金（サーバー代・立て替え帳）</span>
-                    </h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                        <input type="text" id="expenseTitleInput" placeholder="内容 (例: サーバー代)" class="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white">
-                        <input type="number" id="expenseAmountInput" placeholder="金額 (円)" class="px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-xs text-white">
-                        <button onclick="addExpenseEntry()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs">追加</button>
+                <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 space-y-3">
+                    <h4 class="text-sm font-black text-white">📜 棒木幕府 歴史年表・立替メモ</h4>
+                    <div class="flex gap-1.5">
+                        <input id="chronicleTextInput" type="text" placeholder="思い出や達成記録を追加..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                        <button type="button" onclick="addChronicleEntry()" class="px-3 py-2 rounded-xl bg-slate-800 text-amber-300 font-black text-xs">記録</button>
                     </div>
-                    <div id="expenseList" class="space-y-2 max-h-56 overflow-y-auto"></div>
+                    <div id="chronicleList" class="space-y-1.5 max-h-36 overflow-y-auto"></div>
+                    <div class="pt-2 border-t border-slate-800 space-y-2">
+                        <div class="flex gap-1.5">
+                            <input id="expenseTitleInput" type="text" placeholder="立替内容(ゲーム代等)" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white">
+                            <input id="expenseAmountInput" type="number" placeholder="金額" class="w-24 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white">
+                            <button type="button" onclick="addExpenseEntry()" class="px-2.5 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-black text-xs">追加</button>
+                        </div>
+                        <div id="expenseList" class="space-y-1"></div>
+                    </div>
                 </div>
-            </div>
-
-            <!-- Shared Strategy Memo -->
-            <div class="bg-gaming-card border border-gaming-border rounded-3xl p-4 sm:p-5 space-y-2.5">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-base font-black text-white flex items-center gap-2">
-                        <i class="fa-solid fa-clipboard-list text-indigo-400"></i>
-                        <span>📝 幕府の共有黒板（マルチ部屋パス・攻略URLメモ）</span>
-                    </h3>
-                    <button onclick="saveSharedMemo()" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs">メモを保存</button>
-                </div>
-                <textarea id="sharedMemoTextarea" rows="3" placeholder="マルチプレイのサーバーIP、パスワード、攻略WikiのURLなどを3人で共有できます" class="w-full p-3 rounded-2xl bg-slate-950 border border-slate-800 text-xs sm:text-sm text-white focus:border-amber-400 focus:outline-none"></textarea>
             </div>
         </section>
     </main>
@@ -521,63 +380,50 @@
     <!-- ==========================================
          MODAL 1: DATE SCHEDULE DETAIL MODAL
          ========================================== -->
-    <div id="dateDetailModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
-        <div class="bg-gaming-card border-2 border-slate-700 rounded-3xl max-w-lg w-full p-4 sm:p-6 space-y-4 shadow-2xl my-auto">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div>
-                    <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300">DATE SCHEDULE</span>
-                    <h3 id="modalDateTitle" class="text-base sm:text-xl font-black text-white mt-0.5">2025年5月10日 (土)</h3>
-                </div>
-                <button onclick="closeDateModal()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center">
+    <div id="dateDetailModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-3">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-4 sm:p-5 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between">
+                <h3 id="modalDateTitle" class="text-base sm:text-lg font-black text-white">2025年5月1日 (木)</h3>
+                <button type="button" onclick="closeDateModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <!-- 3 Members Availability Selector (Strict Ownership: Only logged-in user can edit their own row) -->
             <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                    <label class="text-xs font-black text-amber-300"><i class="fa-solid fa-lock mr-1"></i>3人の参加ステータス（自分の予定のみ変更可能）</label>
-                    <span class="text-[10px] text-slate-400">他のメンバーの予定はロックされています</span>
-                </div>
+                <label class="text-xs font-black text-amber-300">👥 3人の出欠状況（自分の枠のみ変更可）</label>
                 <div id="modalMemberStatusList" class="space-y-2"></div>
             </div>
 
-            <!-- Start Time & Planned Game Selector -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-800">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2 border-t border-slate-800">
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1">集合・開始時間</label>
-                    <select id="modalStartTimeSelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs sm:text-sm font-bold text-white">
+                    <label class="text-[11px] font-bold text-slate-400 block mb-1">⏰ 集合時間</label>
+                    <select id="modalStartTimeSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-bold">
                         <option value="20:00〜">20:00〜</option>
-                        <option value="21:00〜" selected>21:00〜</option>
-                        <option value="21:30〜">21:30〜</option>
+                        <option value="21:00〜">21:00〜</option>
                         <option value="22:00〜">22:00〜</option>
-                        <option value="22:30〜">22:30〜</option>
                         <option value="23:00〜">23:00〜</option>
-                        <option value="昼から終日">昼から終日</option>
-                        <option value="時間未定">時間未定</option>
+                        <option value="昼13:00〜">昼13:00〜</option>
+                        <option value="終日いつでも">終日いつでも</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1">この日に遊ぶゲーム・予定</label>
-                    <select id="modalPlannedGameSelect" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs sm:text-sm font-bold text-white"></select>
+                    <label class="text-[11px] font-bold text-slate-400 block mb-1">🎮 遊ぶゲーム・予定</label>
+                    <select id="modalPlannedGameSelect" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-bold"></select>
                 </div>
             </div>
 
-            <!-- Quick Note -->
             <div>
-                <label class="block text-xs font-bold text-slate-300 mb-1">一言メモ（任意）</label>
-                <input type="text" id="modalDayNoteInput" placeholder="例: 22時頃に風呂から戻ります！" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs sm:text-sm text-white">
+                <label class="text-[11px] font-bold text-slate-400 block mb-1">📝 ひとこと備考（遅れる連絡など）</label>
+                <input id="modalDayNoteInput" type="text" placeholder="例: 21時半になるかも！" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
             </div>
 
-            <!-- Save & Discord Manual Notify -->
-            <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-800">
-                <button type="button" onclick="manualSendDiscordForCurrentDate()" class="px-3 py-2 rounded-xl bg-[#5865F2]/25 hover:bg-[#5865F2]/40 border border-[#5865F2]/50 text-indigo-200 text-xs font-bold flex items-center gap-1.5 transition">
-                    <i class="fa-brands fa-discord"></i>
-                    <span>Discordへ再通知</span>
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800">
+                <button type="button" onclick="manualSendDiscordForCurrentDate()" class="px-3 py-2 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 text-xs font-bold">
+                    📣 Discordへ再通知
                 </button>
                 <div class="flex items-center gap-2">
-                    <button type="button" onclick="closeDateModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300">閉じる</button>
-                    <button type="button" onclick="saveDateModalDetails()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-black text-xs sm:text-sm shadow-lg transition">
+                    <button type="button" onclick="closeDateModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 text-xs font-bold">閉じる</button>
+                    <button type="button" onclick="saveDateModalDetails()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black text-xs sm:text-sm shadow-lg">
                         保存して同期
                     </button>
                 </div>
@@ -586,171 +432,96 @@
     </div>
 
     <!-- ==========================================
-         MODAL 2: SMART ACCOUNT & 3-MEMBER PROFILE MANAGER
+         MODAL 2: MY ACCOUNT & LOGIN MODAL
          ========================================== -->
-    <div id="onboardingModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
-        <div class="bg-gaming-card border-2 border-amber-500/50 rounded-3xl max-w-xl w-full p-4 sm:p-6 space-y-4 shadow-2xl my-auto">
-            <div class="flex items-start justify-between gap-3 border-b border-slate-800 pb-3">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-amber-500 to-indigo-600 flex items-center justify-center text-white text-lg sm:text-xl shadow-lg shrink-0">
-                        <i class="fa-solid fa-user-lock"></i>
-                    </div>
-                    <div>
-                        <span class="text-[10px] font-black uppercase tracking-wider text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded-full">
-                            PERSONAL ACCOUNT & LOCK
-                        </span>
-                        <h3 class="text-sm sm:text-lg font-black text-white mt-0.5">個人アカウントログイン ＆ マイプロフィール設定</h3>
-                        <p class="text-[11px] text-slate-400">本人以外のプロフィールや予定は変更できないよう保護されます</p>
-                    </div>
+    <div id="onboardingModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-3">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-lg w-full p-4 sm:p-5 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-base sm:text-lg font-black text-white">👤 マイアカウント＆プロフィール設定</h3>
+                    <p class="text-[11px] text-slate-400">自分の枠を選んで名前・アイコン・本人ロックを設定できます</p>
                 </div>
-                <button onclick="closeOnboardingModal()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center shrink-0">
+                <button type="button" onclick="closeOnboardingModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <!-- Step 1: Select Account Slot -->
-            <div class="space-y-1.5">
-                <div class="flex items-center justify-between">
-                    <label class="block text-xs font-black text-amber-300">1. ログインする自分のアカウント枠を選択</label>
-                    <span class="text-[10px] text-slate-400">🔒マークの枠は本人認証が必要です</span>
+            <!-- 3 Account Slots -->
+            <div id="onboardingSlotGrid" class="grid grid-cols-3 gap-2"></div>
+
+            <!-- Locked Prompt Box -->
+            <div id="slotLockedAuthBox" class="hidden bg-rose-950/40 border border-rose-500/40 rounded-2xl p-4 space-y-3">
+                <div id="lockedSlotTitleText" class="text-xs sm:text-sm font-black text-rose-300">🔒 このアカウントは保護されています</div>
+                <p class="text-[11px] text-slate-300">スマホや別PCから本人としてログインする場合は、設定したパスコードを入力するかGoogle認証を押してください。</p>
+                <div class="flex gap-2">
+                    <input id="unlockPinInput" type="password" placeholder="本人パスコード（合言葉）" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                    <button type="button" onclick="verifySlotPinAndLogin()" class="px-4 py-2 rounded-xl bg-amber-500 text-slate-950 font-black text-xs">ログイン</button>
                 </div>
-                <div id="onboardingSlotGrid" class="grid grid-cols-3 gap-2"></div>
+                <div class="flex items-center justify-between pt-1">
+                    <button type="button" onclick="loginWithGoogleForActiveSlot()" class="px-3 py-1.5 rounded-xl bg-white text-slate-900 font-black text-xs flex items-center gap-1.5">
+                        <i class="fa-brands fa-google text-rose-500"></i><span>Googleアカウントで本人認証</span>
+                    </button>
+                    <button type="button" onclick="forceUnlockCurrentSlot()" class="text-[11px] text-slate-400 underline hover:text-white">ロック解除して編集</button>
+                </div>
             </div>
 
-            <!-- LOCKED SCREEN: Shown when clicking another member's claimed slot without authentication -->
-            <div id="slotLockedAuthBox" class="hidden bg-slate-950 border-2 border-rose-500/40 rounded-2xl p-4 space-y-3">
-                <div class="flex items-center gap-2.5 text-rose-300">
-                    <i class="fa-solid fa-shield-halved text-xl"></i>
-                    <div>
-                        <h4 id="lockedSlotTitleText" class="text-xs sm:text-sm font-black text-white">この枠は本人ロックされています</h4>
-                        <p class="text-[11px] text-slate-400">PC・スマホの別端末から本人としてログインする場合は、設定した合言葉（パスコード）またはGoogle認証を行ってください。</p>
+            <!-- Editable Profile Panel -->
+            <div id="accPanel-single" class="space-y-3">
+                <div class="flex items-center justify-between gap-2 bg-slate-950/90 border border-slate-800 rounded-2xl p-3">
+                    <div class="flex items-center gap-3">
+                        <div id="onboardingAvatarPreviewBox" class="w-12 h-12 rounded-2xl bg-slate-900 border border-amber-500/40 flex items-center justify-center text-3xl">🐉</div>
+                        <div>
+                            <div id="onboardingNamePreviewText" class="text-sm font-black text-white">プレイヤー1</div>
+                            <span id="googleLinkedStatusBadge" class="hidden text-[10px] text-emerald-400 font-bold">✓ Google連携済</span>
+                        </div>
                     </div>
-                </div>
-
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <input
-                        type="password"
-                        id="unlockPinInput"
-                        onkeydown="if(event.key==='Enter') verifySlotPinAndLogin()"
-                        placeholder="本人用パスコード（合言葉）を入力"
-                        class="flex-1 px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs sm:text-sm text-white focus:border-amber-400 focus:outline-none"
-                    >
-                    <button type="button" onclick="verifySlotPinAndLogin()" class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shrink-0 transition">
-                        🔑 パスコードでログイン
+                    <button type="button" onclick="loginWithGoogleForActiveSlot()" class="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-black text-xs flex items-center gap-1.5 shadow">
+                        <i class="fa-brands fa-google text-rose-500"></i>
+                        <span id="googleLoginBtnText">Googleでログイン・連携</span>
                     </button>
                 </div>
 
-                <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
-                    <span class="text-[11px] text-slate-400">Google連携済みの場合はこちら:</span>
-                    <div class="flex items-center gap-2">
-                        <button type="button" onclick="forceUnlockCurrentSlot()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-[11px] transition">
-                            ロック解除して編集
-                        </button>
-                        <button type="button" onclick="loginWithGoogleForActiveSlot()" class="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-black text-xs flex items-center gap-1.5 shadow transition">
-                            <i class="fa-brands fa-google text-rose-500"></i>
-                            <span>Googleアカウントで本人認証</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- UNLOCKED / REGISTRATION FORM: Shown ONLY for your own authenticated slot or an unclaimed slot -->
-            <div id="accPanel-single" class="space-y-4">
-                <!-- Google Quick Sign-In & Passcode Setup -->
-                <div class="bg-slate-950/90 border border-indigo-500/30 rounded-2xl p-3 space-y-2.5">
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-                        <div class="text-xs space-y-0.5">
-                            <div class="font-black text-indigo-300 flex items-center gap-1.5 flex-wrap">
-                                <i class="fa-solid fa-key text-amber-300"></i>
-                                <span>本人ロック設定（Googleログイン ＆ パスコード）</span>
-                                <span id="googleLinkedStatusBadge" class="hidden text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-black">Google連携済</span>
-                            </div>
-                            <p class="text-[11px] text-slate-400">Googleでログインすると、アイコン写真と名前が自動取得され、本人専用の枠として保護されます</p>
-                        </div>
-                        <button type="button" onclick="loginWithGoogleForActiveSlot()" class="px-3.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-900 font-black text-xs flex items-center gap-1.5 shadow shrink-0 transition">
-                            <i class="fa-brands fa-google text-rose-500"></i>
-                            <span id="googleLoginBtnText">Googleでログイン・連携</span>
-                        </button>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 border-t border-slate-800/80">
-                        <div>
-                            <label class="block text-[11px] font-bold text-amber-300 mb-1">🔑 予備パスコード（合言葉・任意）</label>
-                            <input
-                                type="password"
-                                id="onboardingPinInput"
-                                placeholder="例: 1234（Googleログインと併用可）"
-                                class="w-full px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 focus:border-amber-400 focus:outline-none text-xs text-white font-mono"
-                            >
-                        </div>
-                        <div class="flex items-end">
-                            <p class="text-[10px] text-slate-400 leading-relaxed">
-                                ※Googleログインだけでロック可能ですが、予備パスコードも入れておくとアプリ内ブラウザ等からも合言葉で入れます。
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Name & Status -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                     <div>
-                        <label class="block text-xs font-bold text-slate-300 mb-1">2. あなたの名前（ニックネーム）</label>
-                        <input
-                            type="text"
-                            id="onboardingNameInput"
-                            oninput="updateOnboardingPreview()"
-                            placeholder="例: タロウ / 将軍"
-                            class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-amber-400 focus:outline-none text-xs sm:text-sm text-white font-bold"
-                        >
+                        <label class="text-[11px] font-bold text-slate-400 block mb-1">表示名（ニックネーム）</label>
+                        <input id="onboardingNameInput" type="text" oninput="updateOnboardingPreview()" placeholder="あなたの名前" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-bold">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-300 mb-1">一言ステータス（任意）</label>
-                        <input
-                            type="text"
-                            id="onboardingStatusInput"
-                            placeholder="例: 21時以降なら毎日OK！"
-                            class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 focus:border-amber-400 focus:outline-none text-xs sm:text-sm text-white"
-                        >
+                        <label class="text-[11px] font-bold text-slate-400 block mb-1">ひとことステータス</label>
+                        <input id="onboardingStatusInput" type="text" placeholder="例: 21時以降OK！" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
                     </div>
                 </div>
 
-                <!-- Avatar Picker, Image Upload & Discord Image URL -->
-                <div class="space-y-2">
-                    <div class="flex flex-wrap items-center justify-between gap-2">
-                        <label class="text-xs font-bold text-slate-300">3. あなたのアイコン（絵文字 / 写真 / Discord画像URL）</label>
-                        <label class="px-2.5 py-1 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-400/50 text-indigo-200 text-[11px] font-black cursor-pointer flex items-center gap-1.5 transition">
-                            <i class="fa-solid fa-image"></i>
-                            <span>スマホ・PCから写真を選択</span>
+                <div>
+                    <div class="flex items-center justify-between mb-1">
+                        <label class="text-[11px] font-bold text-slate-400">アイコン選択（絵文字 または 画像アップロード）</label>
+                        <label class="text-[11px] font-black text-amber-300 cursor-pointer hover:underline">
+                            📷 写真を選ぶ
                             <input type="file" accept="image/*" onchange="handleAvatarFileUpload(event)" class="hidden">
                         </label>
                     </div>
+                    <div id="onboardingEmojiPalette" class="grid grid-cols-8 gap-1 bg-slate-950 p-2 rounded-2xl border border-slate-800 max-h-28 overflow-y-auto"></div>
+                </div>
 
-                    <div class="flex gap-1.5">
-                        <input
-                            type="url"
-                            id="onboardingDiscordAvatarUrlInput"
-                            placeholder="Discord等のアイコン画像URLを貼り付けて適用もOK (https://...)"
-                            oninput="if(this.value.trim().startsWith('http')){ onboardingTempAvatar = this.value.trim(); updateOnboardingPreview(); }"
-                            class="flex-1 px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-200 focus:border-indigo-400 focus:outline-none"
-                        >
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 block mb-1">画像URL（Discordアイコン等・任意）</label>
+                        <input id="onboardingDiscordAvatarUrlInput" type="text" oninput="if(this.value.trim()){onboardingTempAvatar=this.value.trim();updateOnboardingPreview();}" placeholder="https://..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white">
                     </div>
-
-                    <div class="flex flex-col sm:flex-row items-center gap-3 bg-slate-950/90 p-2.5 rounded-2xl border border-slate-800">
-                        <div class="flex flex-col items-center justify-center px-3 py-2 bg-slate-900 rounded-xl border border-slate-800 shrink-0 min-w-[92px]">
-                            <div id="onboardingAvatarPreviewBox" class="w-12 h-12 rounded-full flex items-center justify-center text-2xl">🐉</div>
-                            <span id="onboardingNamePreviewText" class="text-[11px] font-black text-amber-300 mt-1 truncate max-w-[84px]">自分</span>
-                        </div>
-                        <div id="onboardingEmojiPalette" class="grid grid-cols-8 gap-1 flex-1 w-full max-h-32 overflow-y-auto p-1"></div>
+                    <div>
+                        <label class="text-[11px] font-bold text-slate-400 block mb-1">🔑 本人ロック用パスコード（任意）</label>
+                        <input id="onboardingPinInput" type="text" placeholder="空欄ならロックなし / 4桁など" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white">
                     </div>
                 </div>
 
-                <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800">
-                    <button type="button" onclick="logoutCurrentSlotOnDevice()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-rose-950/70 text-slate-300 hover:text-rose-200 text-xs font-bold transition">
-                        <i class="fa-solid fa-right-from-bracket mr-1"></i>この端末からログアウト
-                    </button>
-                    <button type="button" onclick="completeOnboardingRegistration()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-indigo-600 hover:opacity-95 text-white font-black text-xs sm:text-sm shadow-lg shadow-amber-500/20 flex items-center gap-2 transition">
-                        <i class="fa-solid fa-lock"></i>
-                        <span>マイプロフィールを保存・ロック</span>
-                    </button>
+                <div class="flex items-center justify-between pt-2 border-t border-slate-800">
+                    <button type="button" onclick="logoutCurrentSlotOnDevice()" class="text-xs text-slate-400 hover:text-rose-300">🔒 この端末をロック</button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="closeOnboardingModal()" class="px-4 py-2 rounded-xl bg-slate-800 text-xs font-bold text-slate-300">閉じる</button>
+                        <button type="button" onclick="completeOnboardingRegistration()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black text-xs sm:text-sm shadow-lg">
+                            保存してマイアカウント決定
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -759,68 +530,72 @@
     <!-- ==========================================
          MODAL 3: DISCORD WEBHOOK & FIREBASE SYNC MODAL
          ========================================== -->
-    <div id="discordSettingsModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-3 sm:p-4 overflow-y-auto">
-        <div class="bg-gaming-card border-2 border-[#5865F2]/50 rounded-3xl max-w-lg w-full p-4 sm:p-6 space-y-4 shadow-2xl my-auto">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-10 h-10 rounded-2xl bg-[#5865F2]/25 border border-[#5865F2]/50 flex items-center justify-center text-indigo-300 text-lg">
-                        <i class="fa-brands fa-discord"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-sm sm:text-lg font-black text-white">Discord自動伝令（Webhook）設定</h3>
-                        <p class="text-[11px] text-slate-400">3人全員の予定が合った（◯または△で揃った）時だけ自動通知します</p>
-                    </div>
+    <div id="discordSettingsModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-3">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-xl w-full p-4 sm:p-5 space-y-4 shadow-2xl max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <h3 class="text-base sm:text-lg font-black text-white">🔥 リアルタイム同期 ＆ Discord伝令設定</h3>
+                    <span id="firebaseModalStatusBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold">確認中</span>
                 </div>
-                <button onclick="closeDiscordSettingsModal()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center">
+                <button type="button" onclick="closeDiscordSettingsModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <div class="space-y-3">
-                <label class="flex items-center justify-between bg-slate-950 p-3 rounded-2xl border border-slate-800 cursor-pointer">
-                    <span class="text-xs font-bold text-white">3人の予定が揃った時にDiscordへ自動通知する</span>
-                    <input type="checkbox" id="discordEnabledCheckbox" checked class="w-4 h-4 accent-indigo-500">
-                </label>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1">Discord ウェブフックURL</label>
-                    <input
-                        type="url"
-                        id="discordWebhookUrlInput"
-                        placeholder="https://discord.com/api/webhooks/..."
-                        class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white focus:border-indigo-400 focus:outline-none"
-                    >
+            <!-- Realtime Sync Status & Config Section -->
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3.5 space-y-3">
+                <div id="firebaseConnectionDiagText" class="text-[11px] font-bold text-amber-300 bg-slate-900 border border-amber-500/30 rounded-xl px-3 py-2">
+                    Firebaseの接続状態を確認しています...
                 </div>
 
-                <!-- Optional External Firebase Config for GitHub Pages -->
-                <details open class="bg-slate-950/90 border border-amber-500/40 rounded-2xl p-3.5 text-xs">
-                    <summary class="font-black text-amber-300 cursor-pointer flex items-center justify-between">
-                        <span>🔥 3人リアルタイム同期（Firebase）設定・手順ガイド</span>
-                        <span id="firebaseModalStatusBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400">未接続(端末内保存)</span>
-                    </summary>
-                    <div class="mt-3 space-y-2.5 text-slate-300">
-                        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-2.5 space-y-1 text-[11px] leading-relaxed">
-                            <p class="font-bold text-white">💡 Googleログイン＆3人同期の無料設定手順（1人が1回やるだけでOK）</p>
-                            <ol class="list-decimal list-inside space-y-1 text-slate-300">
-                                <li><a href="https://console.firebase.google.com/" target="_blank" rel="noopener" class="text-amber-300 underline font-bold">Firebase Console</a> でプロジェクト作成 ➔ トップ画面の <strong>「&lt;/&gt;（ウェブ）」</strong> からアプリ登録</li>
-                                <li>表示された <code class="text-amber-200">const firebaseConfig = { ... };</code> を<strong>下の枠にコピペ</strong></li>
-                                <li>左メニュー「構築」➔ <strong>Authentication</strong> ➔「ログイン方法（Sign-in method）」で <strong>「Google」</strong>（サポートメールを選択して保存）と <strong>「匿名」</strong> を有効化</li>
-                                <li><strong>【重要】</strong>Authentication ➔「設定（Settings）」➔ <strong>「承認済みドメイン」</strong> に公開先のドメイン（例: <code id="currentDomainHintText" class="text-emerald-300 font-mono">あなたのID.github.io</code>）を追加 <button type="button" onclick="copyCurrentHostname()" class="ml-1 px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 text-[10px] font-bold">ドメインをコピー</button></li>
-                                <li>左メニュー「構築」➔ <strong>Firestore Database</strong>（※Realtime Databaseではありません）➔「データベースの作成」➔ <strong>「テストモードで開始」</strong> で作成</li>
-                                <li>Firestore上部の <strong>「ルール」</strong> タブを開き、中身をすべて消して下のボタンでコピーしたルールを貼り付けて「公開」 <button type="button" onclick="copyFirestoreRulesText()" class="ml-1 px-2 py-0.5 rounded bg-emerald-500 text-slate-950 text-[10px] font-black">📋 Firestoreルールをコピー</button></li>
-                            </ol>
-                        </div>
-                        <textarea id="customFirebaseConfigInput" rows="4" placeholder="Firebaseコンソールの const firebaseConfig = { apiKey: &quot;...&quot;, ... }; をそのまま丸ごと貼り付けてOKです！" class="w-full p-2.5 rounded-xl bg-slate-900 border border-slate-700 text-[11px] text-slate-200 font-mono focus:border-amber-400 focus:outline-none"></textarea>
-                        <div class="flex flex-wrap gap-2">
-                            <button type="button" onclick="saveCustomFirebaseConfig()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition">
-                                🔥 Firebase設定を保存して接続
-                            </button>
-                            <button type="button" onclick="downloadHtmlWithEmbeddedConfig()" class="px-3.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-200 font-bold text-xs transition" title="GitHub Pagesにアップすれば友達2人は設定不要になります">
-                                📥 この設定を埋め込んだ index.html を保存 (GitHub用)
-                            </button>
+                <div>
+                    <label class="text-xs font-black text-amber-300 block mb-1">1. Firebaseの「firebaseConfig」を貼り付け（Firestore / Realtime Database 両対応）</label>
+                    <textarea id="customFirebaseConfigInput" rows="4" placeholder="const firebaseConfig = { apiKey: '...', projectId: '...', databaseURL: '...' }; をそのまま貼り付け" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs font-mono text-emerald-300 focus:outline-none focus:border-amber-400"></textarea>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="saveCustomFirebaseConfig()" class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow">
+                        🔥 Firebase設定を保存して接続
+                    </button>
+                    <button type="button" onclick="forceManualCloudSync()" class="px-3 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-300 font-black text-xs">
+                        🔄 今すぐ手動で同期テスト
+                    </button>
+                    <button type="button" onclick="copyFirebaseShareLink()" class="px-3 py-2 rounded-xl bg-indigo-500/20 hover:bg-indigo-500/30 border border-indigo-500/40 text-indigo-300 font-black text-xs">
+                        🔗 友達用の自動接続URLをコピー
+                    </button>
+                    <button type="button" onclick="downloadHtmlWithEmbeddedConfig()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs">
+                        📥 設定埋め込み済 index.html を保存 (GitHub用)
+                    </button>
+                </div>
+
+                <!-- Rules Copy Helper -->
+                <div class="pt-2 border-t border-slate-800/80 space-y-2 text-[11px] text-slate-300">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span>📌 <strong>データベースのルール設定（ワンタップコピー）</strong></span>
+                        <div class="flex gap-1.5">
+                            <button type="button" onclick="copyFirestoreRulesText()" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-black text-[10px]">📋 Firestore用ルールをコピー</button>
+                            <button type="button" onclick="copyRealtimeDbRulesText()" class="px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 font-black text-[10px]">📋 Realtime DB用ルールをコピー</button>
                         </div>
                     </div>
-                </details>
+                    <div class="flex items-center justify-between bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-800">
+                        <span class="text-[10px] text-slate-400">Googleログイン承認用ドメイン: <strong id="currentDomainHintText" class="text-white">github.io</strong></span>
+                        <button type="button" onclick="copyCurrentHostname()" class="text-[10px] text-amber-300 font-bold hover:underline">📋 ドメインをコピー</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Discord Webhook Config Section -->
+            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-3.5 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-black text-indigo-300 flex items-center gap-1.5">
+                        <i class="fa-brands fa-discord"></i><span>2. Discord 自動招集ウェブフックURL</span>
+                    </label>
+                    <label class="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer">
+                        <input id="discordEnabledCheckbox" type="checkbox" checked class="rounded text-indigo-500">
+                        <span>3人揃ったら自動通知</span>
+                    </label>
+                </div>
+                <input id="discordWebhookUrlInput" type="text" placeholder="https://discord.com/api/webhooks/..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white">
             </div>
 
             <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-800">
@@ -844,9 +619,9 @@
          APPLICATION & FIREBASE REALTIME LOGIC
          ========================================== -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const STORAGE_KEY_STATE = 'bouki_bakufu_state_v1';
         const STORAGE_KEY_MEMBERS = 'bouki_bakufu_members_v1';
@@ -909,6 +684,7 @@
         ];
 
         let appState = {
+            hubUpdatedAt: 0,
             members: [
                 { id: 'm1', name: 'プレイヤー1', avatar: '🐉', status: '21時以降OK！', nowSignal: '🟢 今すぐ遊べる！', wins: 0, carries: 0, trolls: 0, updatedAt: 0 },
                 { id: 'm2', name: 'プレイヤー2', avatar: '🦊', status: '週末メイン', nowSignal: '🟢 今すぐ遊べる！', wins: 0, carries: 0, trolls: 0, updatedAt: 0 },
@@ -971,10 +747,15 @@
         let iconCache = {};
         let deviceAuthTokens = {};
 
-        // Firebase instances
+        // Firebase & Realtime Sync instances
         let db = null;
         let auth = null;
         let currentUser = null;
+        let activeFirebaseConfig = null;
+        let unsubscribeSnapshot = null;
+        let rtdbPollTimer = null;
+        let isApplyingRemoteUpdate = false;
+        let hasFetchedInitialCloudDoc = false;
         let appId = typeof __app_id !== 'undefined' ? __app_id : 'bouki-bakufu-hub';
 
         // ------------------------------------------
@@ -1007,7 +788,7 @@
 
         function isMemberSlotClaimed(member) {
             if (!member) return false;
-            return Boolean(member.pinCode || member.googleUid || member.isClaimed);
+            return Boolean(member.pinCode || member.googleUid);
         }
 
         function isSlotUnlockedOnThisDevice(memberId) {
@@ -1065,13 +846,38 @@
             setTimeout(() => {
                 toast.style.opacity = '0';
                 setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            }, 3200);
         };
 
         // ------------------------------------------
-        // LOCALSTORAGE HYDRATION & ANTI-OVERWRITE
+        // LOCALSTORAGE HYDRATION & URL CONFIG IMPORT
         // ------------------------------------------
+        function importFirebaseConfigFromUrlIfPresent() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                let fbParam = params.get('fb');
+                if (!fbParam && window.location.hash.includes('fb=')) {
+                    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+                    fbParam = hashParams.get('fb');
+                }
+                if (fbParam) {
+                    const decodedJson = decodeURIComponent(escape(atob(fbParam)));
+                    const parsed = parseFlexibleFirebaseConfig(decodedJson);
+                    if (parsed && parsed.apiKey && parsed.projectId) {
+                        localStorage.setItem(STORAGE_KEY_CUSTOM_FB, JSON.stringify(parsed, null, 2));
+                        if (window.history && window.history.replaceState) {
+                            const cleanUrl = window.location.origin + window.location.pathname;
+                            window.history.replaceState({}, document.title, cleanUrl);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.warn('URL Firebase config import warning:', e);
+            }
+        }
+
         function hydrateStateFromLocalStorage() {
+            importFirebaseConfigFromUrlIfPresent();
             try {
                 const rawTokens = localStorage.getItem(STORAGE_KEY_AUTH_TOKENS);
                 if (rawTokens) {
@@ -1134,18 +940,19 @@
         }
 
         // ------------------------------------------
-        // FIREBASE CLOUD SYNC
+        // DUAL-ENGINE REALTIME SYNC (FIRESTORE + REALTIME DB FALLBACK)
         // ------------------------------------------
         function parseFlexibleFirebaseConfig(rawText) {
-            if (!rawText || typeof rawText !== 'string') return null;
+            if (!rawText) return null;
+            if (typeof rawText === 'object' && rawText.apiKey) return rawText;
+            if (typeof rawText !== 'string') return null;
             const trimmed = rawText.trim();
             try {
                 const direct = JSON.parse(trimmed);
                 if (direct && direct.apiKey) return direct;
             } catch (e) {}
 
-            // Extract key-value pairs even if pasted directly as JS code from Firebase Console
-            const keys = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId', 'measurementId'];
+            const keys = ['apiKey', 'authDomain', 'projectId', 'databaseURL', 'storageBucket', 'messagingSenderId', 'appId', 'measurementId'];
             const extracted = {};
             keys.forEach(k => {
                 const regex = new RegExp(`["']?${k}["']?\\s*:\\s*["']([^"']+)["']`);
@@ -1157,16 +964,194 @@
             return extracted.apiKey && extracted.projectId ? extracted : null;
         }
 
-        function updateFirebaseStatusBadge(isConnected) {
+        function updateFirebaseStatusBadge(status, detailMsg = '') {
             const badge = document.getElementById('firebaseModalStatusBadge');
-            if (!badge) return;
-            if (isConnected) {
-                badge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-black';
-                badge.textContent = '🟢 クラウド同期接続済';
+            const headerDot = document.getElementById('headerSyncDot');
+            const headerText = document.getElementById('headerSyncText');
+            const diagEl = document.getElementById('firebaseConnectionDiagText');
+
+            if (status === 'connected') {
+                if (badge) {
+                    badge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-black';
+                    badge.textContent = '🟢 リアルタイム同期中';
+                }
+                if (headerDot) headerDot.className = 'w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]';
+                if (headerText) headerText.textContent = '同期:ON';
+                if (diagEl) {
+                    diagEl.className = 'text-[11px] font-bold text-emerald-300 bg-emerald-950/50 border border-emerald-500/40 rounded-xl px-3 py-2';
+                    diagEl.textContent = detailMsg || '🟢 クラウドとリアルタイム同期中です！';
+                }
+            } else if (status === 'connecting') {
+                if (badge) {
+                    badge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold';
+                    badge.textContent = '🟡 同期接続中...';
+                }
+                if (headerDot) headerDot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
+                if (headerText) headerText.textContent = '接続中...';
+                if (diagEl) {
+                    diagEl.className = 'text-[11px] font-bold text-amber-300 bg-slate-900 border border-amber-500/30 rounded-xl px-3 py-2';
+                    diagEl.textContent = detailMsg || '🟡 Firebaseへ接続しています...';
+                }
             } else {
-                badge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400';
-                badge.textContent = '未接続(端末内保存)';
+                if (badge) {
+                    badge.className = 'text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/40 font-bold';
+                    badge.textContent = '🔴 未接続(端末内保存)';
+                }
+                if (headerDot) headerDot.className = 'w-2 h-2 rounded-full bg-rose-500';
+                if (headerText) headerText.textContent = '同期:未接続';
+                if (diagEl) {
+                    diagEl.className = 'text-[11px] font-bold text-rose-300 bg-rose-950/40 border border-rose-500/40 rounded-xl px-3 py-2';
+                    diagEl.textContent = detailMsg || '🔴 Firebase未接続（右上の「伝令・同期設定」から設定できます）';
+                }
             }
+        }
+
+        function getHubDocRef() {
+            if (!db) return null;
+            return doc(db, 'artifacts', appId, 'public', 'data', 'bouki_bakufu_rooms', 'main_hub');
+        }
+
+        function getCandidateRtdbUrls(config) {
+            if (!config || !config.projectId) return [];
+            const urls = [];
+            if (config.databaseURL) {
+                urls.push(config.databaseURL.replace(/\/$/, ''));
+            }
+            urls.push(`https://${config.projectId}-default-rtdb.firebaseio.com`);
+            urls.push(`https://${config.projectId}-default-rtdb.asia-southeast1.firebasedatabase.app`);
+            return [...new Set(urls)];
+        }
+
+        function mergeRemotePayloadIntoLocalState(parsed) {
+            if (!parsed || typeof parsed !== 'object') return false;
+            let neededLocalProtection = false;
+
+            const smartMergedMembers = (appState.members || []).map((localM, idx) => {
+                const remoteM = (parsed.members && parsed.members[idx]) ? parsed.members[idx] : null;
+                if (!remoteM) return localM;
+
+                const localHasCustom = !isDefaultMemberName(localM.name);
+                const remoteIsDefault = isDefaultMemberName(remoteM.name);
+
+                if (localHasCustom && remoteIsDefault) {
+                    neededLocalProtection = true;
+                    return localM;
+                }
+                if ((localM.updatedAt || 0) > (remoteM.updatedAt || 0)) {
+                    neededLocalProtection = true;
+                    return localM;
+                }
+                return { ...localM, ...remoteM };
+            });
+
+            const localSchedules = appState.schedules || {};
+            const remoteSchedules = parsed.schedules || {};
+            const allDateKeys = new Set([...Object.keys(localSchedules), ...Object.keys(remoteSchedules)]);
+            const mergedSchedules = {};
+
+            allDateKeys.forEach(dateKey => {
+                const locDay = localSchedules[dateKey];
+                const remDay = remoteSchedules[dateKey];
+                if (locDay && !remDay) {
+                    mergedSchedules[dateKey] = locDay;
+                    if (locDay.updatedAt) neededLocalProtection = true;
+                } else if (!locDay && remDay) {
+                    mergedSchedules[dateKey] = remDay;
+                } else if (locDay && remDay) {
+                    const locTime = locDay.updatedAt || 0;
+                    const remTime = remDay.updatedAt || 0;
+                    if (locTime > remTime) {
+                        mergedSchedules[dateKey] = locDay;
+                        neededLocalProtection = true;
+                    } else {
+                        mergedSchedules[dateKey] = remDay;
+                    }
+                }
+            });
+
+            const remoteUpdatedAt = parsed.hubUpdatedAt || 0;
+            const localUpdatedAt = appState.hubUpdatedAt || 0;
+            const preferRemoteCollections = remoteUpdatedAt >= localUpdatedAt;
+
+            appState = {
+                ...appState,
+                ...parsed,
+                hubUpdatedAt: Math.max(localUpdatedAt, remoteUpdatedAt),
+                members: smartMergedMembers,
+                schedules: mergedSchedules,
+                games: (preferRemoteCollections && Array.isArray(parsed.games) && parsed.games.length > 0)
+                    ? parsed.games
+                    : (appState.games || []),
+                arcadeScores: parsed.arcadeScores || appState.arcadeScores,
+                chronicles: (preferRemoteCollections && Array.isArray(parsed.chronicles))
+                    ? parsed.chronicles
+                    : (appState.chronicles || []),
+                expenses: (preferRemoteCollections && Array.isArray(parsed.expenses))
+                    ? parsed.expenses
+                    : (appState.expenses || []),
+                sharedMemo: preferRemoteCollections && typeof parsed.sharedMemo === 'string'
+                    ? parsed.sharedMemo
+                    : appState.sharedMemo,
+                discordConfig: (parsed.discordConfig && parsed.discordConfig.webhookUrl)
+                    ? parsed.discordConfig
+                    : (appState.discordConfig || { webhookUrl: '', enabled: true })
+            };
+
+            return neededLocalProtection;
+        }
+
+        // Realtime Database REST Fallback (for users who created Realtime Database instead of Firestore)
+        async function tryPullFromRealtimeDbRest() {
+            const urls = getCandidateRtdbUrls(activeFirebaseConfig);
+            for (const base of urls) {
+                try {
+                    const res = await fetch(`${base}/bouki_bakufu_hub/main_hub.json`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        activeFirebaseConfig.databaseURL = base;
+                        if (data && data.payload) {
+                            const parsed = typeof data.payload === 'string' ? JSON.parse(data.payload) : data.payload;
+                            isApplyingRemoteUpdate = true;
+                            mergeRemotePayloadIntoLocalState(parsed);
+                            saveStateToLocalStorage();
+                            renderAll();
+                            isApplyingRemoteUpdate = false;
+                        }
+                        updateFirebaseStatusBadge('connected', '🟢 Realtime Databaseとリアルタイム同期中');
+                        return true;
+                    }
+                } catch (e) {}
+            }
+            return false;
+        }
+
+        async function tryPushToRealtimeDbRest() {
+            const urls = getCandidateRtdbUrls(activeFirebaseConfig);
+            for (const base of urls) {
+                try {
+                    const res = await fetch(`${base}/bouki_bakufu_hub/main_hub.json`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            payload: JSON.stringify(appState),
+                            updatedAt: Date.now()
+                        })
+                    });
+                    if (res.ok) {
+                        activeFirebaseConfig.databaseURL = base;
+                        updateFirebaseStatusBadge('connected', `🟢 最終同期: ${new Date().toLocaleTimeString('ja-JP')} (Realtime DB)`);
+                        return true;
+                    }
+                } catch (e) {}
+            }
+            return false;
+        }
+
+        function startRtdbPollingLoop() {
+            if (rtdbPollTimer) clearInterval(rtdbPollTimer);
+            rtdbPollTimer = setInterval(() => {
+                tryPullFromRealtimeDbRest();
+            }, 4000);
         }
 
         async function initRealtimeSync() {
@@ -1179,114 +1164,197 @@
                 if (!firebaseConfig && typeof __firebase_config !== 'undefined' && __firebase_config) {
                     firebaseConfig = parseFlexibleFirebaseConfig(__firebase_config);
                 }
-                if (!firebaseConfig || !firebaseConfig.apiKey) {
-                    updateFirebaseStatusBadge(false);
+                if (!firebaseConfig || !firebaseConfig.apiKey || !firebaseConfig.projectId) {
+                    updateFirebaseStatusBadge('disconnected', '🔴 Firebase設定が未入力です（右上の「伝令・同期設定」から設定できます）');
                     return;
                 }
 
-                const app = initializeApp(firebaseConfig);
+                activeFirebaseConfig = firebaseConfig;
+                updateFirebaseStatusBadge('connecting', `🟡 プロジェクト「${firebaseConfig.projectId}」へ接続中...`);
+
+                const appName = 'bouki_app_' + firebaseConfig.projectId.replace(/[^a-zA-Z0-9_-]/g, '_');
+                const existingApp = getApps().find(a => a.name === appName);
+                const app = existingApp || initializeApp(firebaseConfig, appName);
+
                 auth = getAuth(app);
                 db = getFirestore(app);
 
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
+                // Attempt authentication (RULE 3), but continue to Firestore / RTDB even if Anonymous Auth is disabled
+                try {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else if (!auth.currentUser) {
+                        await signInAnonymously(auth);
+                    }
+                    currentUser = auth.currentUser;
+                } catch (authErr) {
+                    console.warn('Anonymous auth skipped (using public database rules):', authErr?.code || authErr);
                 }
 
                 onAuthStateChanged(auth, (user) => {
-                    currentUser = user;
-                    if (user) {
-                        updateFirebaseStatusBadge(true);
-                        subscribeToHubDocument();
-                    }
+                    if (user) currentUser = user;
                 });
+
+                await subscribeToHubDocument();
             } catch (err) {
-                updateFirebaseStatusBadge(false);
-                console.warn('Realtime sync running in local mode:', err);
+                console.error('Firebase init error:', err);
+                const okRtdb = await tryPullFromRealtimeDbRest();
+                if (okRtdb) {
+                    startRtdbPollingLoop();
+                } else {
+                    updateFirebaseStatusBadge('disconnected', `🔴 接続エラー: ${err?.message || '設定を確認してください'}`);
+                }
             }
         }
 
-        function subscribeToHubDocument() {
-            if (!db || !currentUser) return;
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bouki_bakufu_rooms', 'main_hub');
-            onSnapshot(docRef, (snap) => {
+        async function subscribeToHubDocument() {
+            if (!db) return;
+            if (unsubscribeSnapshot) {
+                try { unsubscribeSnapshot(); } catch (e) {}
+                unsubscribeSnapshot = null;
+            }
+
+            const docRef = getHubDocRef();
+            if (!docRef) return;
+
+            try {
+                const initialSnap = await getDoc(docRef);
+                if (initialSnap.exists()) {
+                    const data = initialSnap.data();
+                    if (data && data.payload) {
+                        const parsed = typeof data.payload === 'string' ? JSON.parse(data.payload) : data.payload;
+                        isApplyingRemoteUpdate = true;
+                        mergeRemotePayloadIntoLocalState(parsed);
+                        saveStateToLocalStorage();
+                        renderAll();
+                        isApplyingRemoteUpdate = false;
+                    }
+                    hasFetchedInitialCloudDoc = true;
+                } else {
+                    hasFetchedInitialCloudDoc = true;
+                    await pushStateToCloud();
+                }
+            } catch (readErr) {
+                console.warn('Initial Firestore fetch warning, trying Realtime DB fallback:', readErr);
+                const okRtdb = await tryPullFromRealtimeDbRest();
+                if (okRtdb) {
+                    startRtdbPollingLoop();
+                    return;
+                }
+            }
+
+            unsubscribeSnapshot = onSnapshot(docRef, (snap) => {
+                updateFirebaseStatusBadge('connected', '🟢 Firestoreとリアルタイム同期中（3人の変更が即時反映されます）');
                 if (snap.exists()) {
                     const data = snap.data();
                     if (data && data.payload) {
                         try {
-                            const parsed = JSON.parse(data.payload);
-                            let neededLocalProtection = false;
-
-                            const smartMergedMembers = (appState.members || []).map((localM, idx) => {
-                                const remoteM = (parsed.members && parsed.members[idx]) ? parsed.members[idx] : null;
-                                if (!remoteM) return localM;
-
-                                const localHasCustom = !isDefaultMemberName(localM.name);
-                                const remoteIsDefault = isDefaultMemberName(remoteM.name);
-
-                                if (localHasCustom && remoteIsDefault) {
-                                    neededLocalProtection = true;
-                                    return localM;
-                                }
-                                if ((localM.updatedAt || 0) > (remoteM.updatedAt || 0)) {
-                                    neededLocalProtection = true;
-                                    return localM;
-                                }
-                                return { ...localM, ...remoteM };
-                            });
-
-                            appState = {
-                                ...appState,
-                                ...parsed,
-                                members: smartMergedMembers,
-                                schedules: { ...(appState.schedules || {}), ...(parsed.schedules || {}) },
-                                discordConfig: (parsed.discordConfig && parsed.discordConfig.webhookUrl)
-                                    ? parsed.discordConfig
-                                    : (appState.discordConfig || { webhookUrl: '', enabled: true })
-                            };
-
-                            if (currentUser && currentUser.uid) {
-                                const linkedMember = appState.members.find(m => m.googleUid && m.googleUid === currentUser.uid);
-                                if (linkedMember && activeMemberId !== linkedMember.id) {
-                                    activeMemberId = linkedMember.id;
-                                    currentUserSlot = memberIdToSlotCode(activeMemberId);
-                                    localStorage.setItem(STORAGE_KEY_MY_SLOT, currentUserSlot);
-                                }
-                            }
-
+                            const parsed = typeof data.payload === 'string' ? JSON.parse(data.payload) : data.payload;
+                            isApplyingRemoteUpdate = true;
+                            mergeRemotePayloadIntoLocalState(parsed);
                             saveStateToLocalStorage();
                             renderAll();
-
-                            if (neededLocalProtection) {
-                                pushStateToCloud();
-                            }
+                            isApplyingRemoteUpdate = false;
+                            hasFetchedInitialCloudDoc = true;
                         } catch (e) {
-                            console.error('Failed to parse synced payload:', e);
+                            isApplyingRemoteUpdate = false;
                         }
                     }
-                } else {
+                } else if (hasFetchedInitialCloudDoc) {
                     pushStateToCloud();
                 }
-            }, (error) => {
-                console.warn('Firestore sync error:', error);
+            }, async (error) => {
+                console.warn('Firestore listener error, checking Realtime Database fallback:', error);
+                const okRtdb = await tryPullFromRealtimeDbRest();
+                if (okRtdb) {
+                    startRtdbPollingLoop();
+                } else {
+                    const code = error?.code || '';
+                    if (code === 'permission-denied') {
+                        updateFirebaseStatusBadge('disconnected', '🔴 権限エラー: FirestoreまたはRealtime DBの「ルール」をコピーして公開してください');
+                    } else {
+                        updateFirebaseStatusBadge('disconnected', `🔴 同期エラー(${code || '未接続'}): FirestoreまたはRealtime Databaseを作成してください`);
+                    }
+                }
             });
         }
 
         async function pushStateToCloud() {
+            appState.hubUpdatedAt = Date.now();
             saveStateToLocalStorage();
             renderAll();
-            if (!db || !currentUser) return;
-            try {
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'bouki_bakufu_rooms', 'main_hub');
-                await setDoc(docRef, {
-                    payload: JSON.stringify(appState),
-                    updatedAt: Date.now()
-                });
-            } catch (e) {
-                console.warn('Cloud push error:', e);
+            if (isApplyingRemoteUpdate) return;
+
+            if (db) {
+                try {
+                    const docRef = getHubDocRef();
+                    await setDoc(docRef, {
+                        payload: JSON.stringify(appState),
+                        updatedAt: Date.now()
+                    });
+                    updateFirebaseStatusBadge('connected', `🟢 最終同期: ${new Date().toLocaleTimeString('ja-JP')}（クラウド保存完了）`);
+                    return;
+                } catch (e) {
+                    console.warn('Firestore write failed, trying Realtime DB REST fallback:', e);
+                }
+            }
+
+            if (activeFirebaseConfig) {
+                await tryPushToRealtimeDbRest();
             }
         }
+
+        window.forceManualCloudSync = async function() {
+            if (!db && !activeFirebaseConfig) {
+                await initRealtimeSync();
+            }
+            try {
+                if (db) {
+                    const docRef = getHubDocRef();
+                    const snap = await getDoc(docRef);
+                    if (snap.exists() && snap.data()?.payload) {
+                        const parsed = JSON.parse(snap.data().payload);
+                        isApplyingRemoteUpdate = true;
+                        mergeRemotePayloadIntoLocalState(parsed);
+                        isApplyingRemoteUpdate = false;
+                    }
+                } else {
+                    await tryPullFromRealtimeDbRest();
+                }
+                await pushStateToCloud();
+                playUiSound('match');
+                showToast('🟢 クラウドと最新データを送受信しました！');
+            } catch (e) {
+                const okRtdb = await tryPushToRealtimeDbRest();
+                if (okRtdb) {
+                    showToast('🟢 Realtime Databaseと同期しました！');
+                } else {
+                    showToast(`⚠️ 同期失敗: データベースのルール設定を確認してください`);
+                }
+            }
+        };
+
+        window.copyFirebaseShareLink = function() {
+            const fbEl = document.getElementById('customFirebaseConfigInput');
+            const raw = (fbEl && fbEl.value.trim()) || localStorage.getItem(STORAGE_KEY_CUSTOM_FB) || '';
+            const parsed = parseFlexibleFirebaseConfig(raw) || EMBEDDED_FIREBASE_CONFIG || activeFirebaseConfig;
+            if (!parsed || !parsed.apiKey) {
+                showToast('⚠️ 先にFirebaseの firebaseConfig を上の枠に貼り付けてください');
+                return;
+            }
+            const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(parsed))));
+            const baseUrl = window.location.origin + window.location.pathname;
+            const shareUrl = `${baseUrl}?fb=${encodeURIComponent(encoded)}`;
+
+            const temp = document.createElement('textarea');
+            temp.value = shareUrl;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            temp.remove();
+            playUiSound('match');
+            showToast('🔗 友達用の自動接続URLをコピーしました！LINEやDiscordで送ってください');
+        };
 
         // ------------------------------------------
         // AVATAR & HEADER RENDERING
@@ -1304,7 +1372,7 @@
             const pills = document.getElementById('memberStatusPills');
             if (!switcher || !pills) return;
 
-            switcher.innerHTML = appState.members.map((m, idx) => {
+            switcher.innerHTML = appState.members.map((m) => {
                 const isActive = m.id === activeMemberId;
                 const isClaimed = isMemberSlotClaimed(m);
                 const isUnlocked = isSlotUnlockedOnThisDevice(m.id);
@@ -1313,13 +1381,13 @@
                     : (isActive ? '<i class="fa-solid fa-circle-check text-[10px]"></i>' : '');
                 return `
                     <button
+                        type="button"
                         onclick="switchActiveMember('${m.id}')"
                         class="px-2 sm:px-2.5 h-8 rounded-xl text-xs font-black flex items-center gap-1.5 transition max-w-[120px] sm:max-w-[145px] ${
                             isActive
                                 ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md shadow-amber-500/20'
                                 : 'bg-slate-800/90 hover:bg-slate-700 text-slate-300 opacity-75'
                         }"
-                        title="${isActive ? '現在ログイン中のあなたの枠' : 'タップしてアカウント切替（本人認証が必要）'}"
                     >
                         ${renderAvatarHtml(m.avatar, 'w-5 h-5', 'text-xs')}
                         <span class="truncate">${escapeHtml(m.name)}</span>
@@ -1328,15 +1396,15 @@
                 `;
             }).join('');
 
-            pills.innerHTML = appState.members.map((m, idx) => {
+            pills.innerHTML = appState.members.map((m) => {
                 const isMe = m.id === activeMemberId;
                 return `
                     <div
-                        onclick="${isMe ? 'openOnboardingModal()' : `showToast('🔒 他のメンバー（${escapeHtml(m.name)}）のプロフィールは変更できません')`}"
-                        class="${isMe ? 'cursor-pointer' : 'cursor-not-allowed opacity-90'} p-2 rounded-xl border transition min-w-0 overflow-hidden ${
+                        onclick="${isMe ? 'openOnboardingModal()' : `switchActiveMember('${m.id}')`}"
+                        class="cursor-pointer p-2 rounded-xl border transition min-w-0 overflow-hidden ${
                             isMe
                                 ? 'bg-amber-500/10 border-amber-500/40'
-                                : 'bg-slate-950/70 border-slate-800'
+                                : 'bg-slate-950/70 border-slate-800 hover:border-slate-700'
                         }"
                     >
                         <div class="flex items-center gap-1.5 min-w-0">
@@ -1344,7 +1412,7 @@
                             <div class="min-w-0 flex-1">
                                 <div class="flex items-center gap-1">
                                     <span class="text-xs font-black text-white truncate">${escapeHtml(m.name)}</span>
-                                    ${isMe ? '<span class="text-[9px] px-1 rounded bg-amber-500 text-slate-950 font-black shrink-0">あなた</span>' : '<i class="fa-solid fa-lock text-[9px] text-slate-500 shrink-0"></i>'}
+                                    ${isMe ? '<span class="text-[9px] px-1 rounded bg-amber-500 text-slate-950 font-black shrink-0">あなた</span>' : ''}
                                 </div>
                                 <p class="text-[10px] text-emerald-300 font-bold truncate">${escapeHtml(m.nowSignal || m.status || '待機中')}</p>
                             </div>
@@ -1365,14 +1433,14 @@
             if (!targetMember) return;
 
             if (memberId === activeMemberId && isSlotUnlockedOnThisDevice(memberId)) {
-                openOnboardingModal();
+                openOnboardingModal(memberId);
                 return;
             }
 
             if (isMemberSlotClaimed(targetMember) && !isSlotUnlockedOnThisDevice(memberId)) {
                 onboardingSelectedSlotId = memberId;
                 openOnboardingModal(memberId);
-                showToast(`🔒 「${targetMember.name}」に切り替えるには本人パスコードまたはGoogle認証が必要です`);
+                showToast(`🔒 「${targetMember.name}」に切り替えるにはパスコードまたはGoogle認証が必要です`);
                 return;
             }
 
@@ -1382,15 +1450,10 @@
             saveStateToLocalStorage();
             playUiSound('tap');
             renderAll();
-            showToast(`👤 「${targetMember.name}」のアカウントに切り替えました`);
+            showToast(`👤 「${targetMember.name}」の操作枠に切り替えました`);
         };
 
         window.setQuickNowSignal = function(signalText) {
-            if (!isSlotUnlockedOnThisDevice(activeMemberId)) {
-                openOnboardingModal(activeMemberId);
-                showToast('🔒 先に自分のアカウントへログインしてください');
-                return;
-            }
             const member = appState.members.find(m => m.id === activeMemberId);
             if (!member) return;
             member.nowSignal = signalText;
@@ -1549,11 +1612,12 @@
             }
             if (quickStampMode) {
                 if (!appState.schedules[dateKey]) {
-                    appState.schedules[dateKey] = { availability: {}, startTime: '21:00〜', plannedGame: '🎲 当日ルーレット・ノリで決める', note: '' };
+                    appState.schedules[dateKey] = { availability: {}, startTime: '21:00〜', plannedGame: '🎲 当日ルーレット・ノリで決める', note: '', updatedAt: Date.now() };
                 }
                 const curr = appState.schedules[dateKey].availability[activeMemberId];
                 const next = curr === 'ok' ? 'maybe' : (curr === 'maybe' ? 'ng' : (curr === 'ng' ? '' : 'ok'));
                 appState.schedules[dateKey].availability[activeMemberId] = next;
+                appState.schedules[dateKey].updatedAt = Date.now();
 
                 const matchNow = evaluateDayMatchStatus(appState.schedules[dateKey]);
                 if (matchNow === 'full' || matchNow === 'partial') {
@@ -1569,11 +1633,6 @@
         };
 
         window.markAllWeekendsFree = async function() {
-            if (!isSlotUnlockedOnThisDevice(activeMemberId)) {
-                openOnboardingModal(activeMemberId);
-                showToast('🔒 先に自分のアカウントへログインしてください');
-                return;
-            }
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const targetDates = [];
@@ -1597,9 +1656,10 @@
             for (const d of targetDates) {
                 const k = formatDateKey(d.getFullYear(), d.getMonth(), d.getDate());
                 if (!appState.schedules[k]) {
-                    appState.schedules[k] = { availability: {}, startTime: '21:00〜', plannedGame: '🎲 当日ルーレット・ノリで決める', note: '' };
+                    appState.schedules[k] = { availability: {}, startTime: '21:00〜', plannedGame: '🎲 当日ルーレット・ノリで決める', note: '', updatedAt: Date.now() };
                 }
                 appState.schedules[k].availability[activeMemberId] = allAlreadyOk ? '' : 'ok';
+                appState.schedules[k].updatedAt = Date.now();
                 if (!allAlreadyOk) {
                     await checkAndTriggerDiscordMatchNotification(k);
                 }
@@ -1613,16 +1673,12 @@
         };
 
         window.clearMyMonthSchedule = function() {
-            if (!isSlotUnlockedOnThisDevice(activeMemberId)) {
-                openOnboardingModal(activeMemberId);
-                showToast('🔒 先に自分のアカウントへログインしてください');
-                return;
-            }
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
             for (let day = 1; day <= daysInMonth; day++) {
                 const k = formatDateKey(currentYear, currentMonth, day);
                 if (appState.schedules[k] && appState.schedules[k].availability) {
                     delete appState.schedules[k].availability[activeMemberId];
+                    appState.schedules[k].updatedAt = Date.now();
                 }
             }
             playUiSound('tap');
@@ -1631,7 +1687,7 @@
         };
 
         // ------------------------------------------
-        // DATE DETAIL MODAL (UNRESTRICTED EDITING)
+        // DATE DETAIL MODAL
         // ------------------------------------------
         function openDateModal(dateKey) {
             currentEditingDateKey = dateKey;
@@ -1737,13 +1793,14 @@
 
         window.setModalMemberAvailability = function(memberId, statusVal) {
             if (!currentEditingDateKey) return;
-            if (memberId !== activeMemberId || !isSlotUnlockedOnThisDevice(activeMemberId)) {
+            if (memberId !== activeMemberId) {
                 showToast('🔒 他のメンバーの予定は変更できません（自分のアカウントのみ操作可能です）');
                 return;
             }
             const entry = appState.schedules[currentEditingDateKey];
             if (!entry.availability) entry.availability = {};
             entry.availability[memberId] = entry.availability[memberId] === statusVal ? '' : statusVal;
+            entry.updatedAt = Date.now();
             playUiSound('tap');
             renderModalMemberStatusRows(entry);
         };
@@ -1767,6 +1824,7 @@
             if (timeSelect) entry.startTime = timeSelect.value;
             if (gameSelect) entry.plannedGame = gameSelect.value;
             if (noteInput) entry.note = noteInput.value.trim();
+            entry.updatedAt = Date.now();
 
             const matchNow = evaluateDayMatchStatus(entry);
             if (matchNow === 'full' || matchNow === 'partial') {
@@ -1782,7 +1840,7 @@
         };
 
         // ------------------------------------------
-        // SMART ACCOUNT, GOOGLE LOGIN & PERSONAL LOCK MANAGEMENT
+        // SMART ACCOUNT, GOOGLE LOGIN & PERSONAL LOCK
         // ------------------------------------------
         function updateSlotLockUiState() {
             const member = appState.members.find(x => x.id === onboardingSelectedSlotId) || appState.members[0];
@@ -1824,7 +1882,7 @@
                 const isClaimed = isMemberSlotClaimed(m);
                 const isUnlocked = isSlotUnlockedOnThisDevice(m.id);
 
-                let statusBadge = '<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">✨ 新規登録可</span>';
+                let statusBadge = '<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">✨ 編集可能</span>';
                 if (isClaimed && isUnlocked) {
                     statusBadge = '<span class="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black">🟢 本人ログイン中</span>';
                 } else if (isClaimed && !isUnlocked) {
@@ -1943,12 +2001,7 @@
             const pinInput = document.getElementById('unlockPinInput');
             const enteredPin = pinInput ? pinInput.value.trim() : '';
 
-            if (!member.pinCode) {
-                showToast('⚠️ この枠はGoogleアカウント連携で保護されています。下の「Googleアカウントで本人認証」を押してください');
-                return;
-            }
-
-            if (enteredPin === member.pinCode) {
+            if (member.pinCode && enteredPin === member.pinCode) {
                 deviceAuthTokens[member.id] = member.pinCode;
                 saveDeviceAuthTokens();
                 activeMemberId = member.id;
@@ -1961,7 +2014,7 @@
                 showToast(`🔓 本人確認完了！「${member.name}」としてログインしました`);
             } else {
                 playUiSound('tap');
-                showToast('❌ パスコード（合言葉）が違います');
+                showToast('❌ パスコードが違います（または下のロック解除を押してください）');
             }
         };
 
@@ -1977,11 +2030,6 @@
 
         window.completeOnboardingRegistration = function() {
             const member = appState.members.find(m => m.id === onboardingSelectedSlotId) || appState.members[0];
-            if (isMemberSlotClaimed(member) && !isSlotUnlockedOnThisDevice(member.id)) {
-                showToast('🔒 本人確認が完了していないため変更できません');
-                return;
-            }
-
             const nameInput = document.getElementById('onboardingNameInput');
             const statusInput = document.getElementById('onboardingStatusInput');
             const pinInput = document.getElementById('onboardingPinInput');
@@ -2004,7 +2052,6 @@
                 member.pinCode = '';
                 deviceAuthTokens[member.id] = 'claimed_owner';
             }
-            member.isClaimed = true;
             member.updatedAt = Date.now();
 
             saveDeviceAuthTokens();
@@ -2023,12 +2070,6 @@
         window.openOnboardingModal = function(targetSlotId) {
             onboardingSelectedSlotId = targetSlotId || activeMemberId || 'm1';
             const member = appState.members.find(x => x.id === onboardingSelectedSlotId) || appState.members[0];
-
-            // 現在の端末で選択中の自分の枠であればすぐ編集可能にする
-            if (!deviceAuthTokens[member.id] && member.id === activeMemberId && !member.pinCode) {
-                deviceAuthTokens[member.id] = 'claimed_owner';
-                saveDeviceAuthTokens();
-            }
 
             onboardingTempAvatar = member.avatar || '🐉';
             const nameEl = document.getElementById('onboardingNameInput');
@@ -2063,19 +2104,21 @@
         window.forceUnlockCurrentSlot = function() {
             const member = appState.members.find(m => m.id === onboardingSelectedSlotId);
             if (!member) return;
-            deviceAuthTokens[member.id] = member.pinCode || 'claimed_owner';
+            member.pinCode = '';
+            delete member.googleUid;
+            deviceAuthTokens[member.id] = 'claimed_owner';
             saveDeviceAuthTokens();
             activeMemberId = member.id;
             currentUserSlot = memberIdToSlotCode(activeMemberId);
             localStorage.setItem(STORAGE_KEY_MY_SLOT, currentUserSlot);
             selectOnboardingSlot(member.id);
             renderAll();
-            showToast(`🔓 「${member.name}」の編集ロックを解除しました`);
+            showToast(`🔓 「${member.name}」のロックを解除して編集可能にしました`);
         };
 
         window.loginWithGoogleForActiveSlot = async function() {
             if (!auth) {
-                showToast('⚠️ 先に右上の「伝令設定」でFirebase設定を保存して接続してください');
+                showToast('⚠️ 先に右上の「伝令・同期設定」でFirebase設定を保存して接続してください');
                 return;
             }
             try {
@@ -2087,11 +2130,6 @@
                     currentUser = gUser;
                     const member = appState.members.find(m => m.id === onboardingSelectedSlotId) || appState.members[0];
 
-                    if (member.googleUid && member.googleUid !== gUser.uid) {
-                        showToast('❌ この枠は別のGoogleアカウントに紐づけられています');
-                        return;
-                    }
-
                     if (gUser.displayName && isDefaultMemberName(member.name)) {
                         member.name = gUser.displayName;
                         const nameEl = document.getElementById('onboardingNameInput');
@@ -2102,7 +2140,6 @@
                         onboardingTempAvatar = gUser.photoURL;
                     }
                     member.googleUid = gUser.uid;
-                    member.isClaimed = true;
                     member.updatedAt = Date.now();
 
                     deviceAuthTokens[member.id] = member.pinCode || 'claimed_owner';
@@ -2117,7 +2154,7 @@
                     selectOnboardingSlot(member.id);
                     playUiSound('match');
                     pushStateToCloud();
-                    showToast(`🎉 Googleアカウント（${member.name}）でログイン＆本人ロックを完了しました！`);
+                    showToast(`🎉 Googleアカウント（${member.name}）でログインしました！`);
                 }
             } catch (err) {
                 const code = err && err.code ? String(err.code) : '';
@@ -2127,7 +2164,7 @@
                 } else if (code === 'auth/operation-not-allowed') {
                     showToast('⚠️ Firebaseの「Authentication ➔ ログイン方法」で「Google」を有効にしてください');
                 } else {
-                    showToast('⚠️ ポップアップが閉じられたかブロックされました。ブラウザ標準（Safari/Chrome）で開くかパスコードをご利用ください');
+                    showToast('⚠️ ポップアップがブロックされたか閉じられました。パスコードまたはそのまま保存をご利用ください');
                 }
             }
         };
@@ -2186,6 +2223,7 @@
                             </div>
                         </div>
                         <button
+                            type="button"
                             onclick="addCatalogGameToBoard('${currentCatalogCategory}', ${idx})"
                             class="px-2.5 py-1.5 rounded-xl text-[11px] font-black shrink-0 transition ${
                                 alreadyAdded
@@ -2267,7 +2305,7 @@
                     items.push({ title: q, iconUrl: fallbackIcon, platform: selectedPlatform });
                 }
 
-                listEl.innerHTML = items.map((item, i) => `
+                listEl.innerHTML = items.map((item) => `
                     <div class="bg-slate-900 border border-slate-800 rounded-xl p-2 flex items-center justify-between gap-2">
                         <div class="flex items-center gap-2 min-w-0">
                             <img src="${escapeHtml(item.iconUrl)}" class="w-10 h-10 rounded-xl object-cover shrink-0">
@@ -2277,6 +2315,7 @@
                             </div>
                         </div>
                         <button
+                            type="button"
                             onclick="addSearchedGameToBoard('${encodeURIComponent(item.title)}', '${encodeURIComponent(item.platform)}', '${encodeURIComponent(item.iconUrl)}')"
                             class="px-2.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shrink-0"
                         >＋登録</button>
@@ -2332,7 +2371,7 @@
 
         window.setGameStatusFilter = function(filter) {
             currentGameStatusFilter = filter;
-            ['active', 'backlog', 'archived', 'all'].forEach(f => {
+            ['active', 'archived', 'all'].forEach(f => {
                 const btn = document.getElementById(`statusFilter-${f}`);
                 if (btn) {
                     btn.className = f === filter
@@ -2402,6 +2441,7 @@
 
                         <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-800/80">
                             <button
+                                type="button"
                                 onclick="toggleGameVote('${g.id}')"
                                 class="flex-1 py-2 px-3 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 transition ${
                                     iVoted
@@ -2412,10 +2452,10 @@
                                 <i class="fa-solid fa-fire"></i>
                                 <span>${iVoted ? 'やりたい投票済' : 'やりたい！に投票'} (${votes.length}/3)</span>
                             </button>
-                            <button onclick="cycleGameStatus('${g.id}')" title="現役 / 候補 / 殿堂入り切替" class="px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold">
+                            <button type="button" onclick="cycleGameStatus('${g.id}')" class="px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold">
                                 ${g.status === 'archived' ? '🔥再燃' : '🏆休止へ'}
                             </button>
-                            <button onclick="deleteGameFromBoard('${g.id}')" title="削除" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-rose-950 text-slate-500 hover:text-rose-300 flex items-center justify-center text-xs">
+                            <button type="button" onclick="deleteGameFromBoard('${g.id}')" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-rose-950 text-slate-500 hover:text-rose-300 flex items-center justify-center text-xs">
                                 <i class="fa-solid fa-trash"></i>
                             </button>
                         </div>
@@ -2455,7 +2495,7 @@
         };
 
         // ------------------------------------------
-        // ARCADE LEADERBOARD & MINI-GAME 1: IAI SLASH
+        // ARCADE LEADERBOARD & MINI-GAMES
         // ------------------------------------------
         function renderArcadeLeaderboard() {
             const grid = document.getElementById('arcadeLeaderboardGrid');
@@ -2512,7 +2552,9 @@
             if (iaiState === 'idle' || iaiState === 'result') {
                 iaiState = 'waiting';
                 box.className = 'w-full h-36 rounded-2xl bg-rose-950/80 border-2 border-rose-500 flex flex-col items-center justify-center gap-1 transition select-none';
+                titleEl.className = 'text-lg font-black text-rose-200';
                 titleEl.textContent = '👀 構え……（まだ押すな！）';
+                subEl.className = 'text-xs text-rose-300';
                 subEl.textContent = '緑色に光った瞬間にタップ！';
                 playUiSound('tap');
 
@@ -2556,7 +2598,6 @@
             }
         };
 
-        // MINI-GAME 2: TAIKO DRUM RUSH
         let taikoActive = false;
         let taikoHits = 0;
         let taikoEndTime = 0;
@@ -2598,7 +2639,6 @@
             }
         };
 
-        // MINI-GAME 3: MEMORY CARDS
         let memoryCards = [];
         let memoryFlippedIndices = [];
         let memoryMatchedCount = 0;
@@ -2624,6 +2664,7 @@
                 const isRevealed = c.matched || memoryFlippedIndices.includes(i);
                 return `
                     <button
+                        type="button"
                         onclick="flipMemoryCard(${i})"
                         class="h-12 rounded-xl font-black text-lg flex items-center justify-center border transition ${
                             isRevealed
@@ -2673,7 +2714,6 @@
             }
         };
 
-        // MINI-GAME 4: BOMB ROULETTE
         let bombFuses = [];
         let bombGameOver = false;
 
@@ -2706,7 +2746,7 @@
                     }
                 }
                 return `
-                    <button onclick="cutBombFuse(${i})" class="h-12 rounded-xl border text-xs font-black transition ${cls}">
+                    <button type="button" onclick="cutBombFuse(${i})" class="h-12 rounded-xl border text-xs font-black transition ${cls}">
                         ${label}
                     </button>
                 `;
@@ -2800,15 +2840,15 @@
                                 <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 shrink-0">${titleStr}</span>
                             </div>
                             <div class="grid grid-cols-3 gap-1.5 text-center">
-                                <button onclick="incrementMemberStat('${m.id}', 'wins')" class="bg-slate-900 hover:bg-slate-800 p-2 rounded-xl border border-slate-800">
+                                <button type="button" onclick="incrementMemberStat('${m.id}', 'wins')" class="bg-slate-900 hover:bg-slate-800 p-2 rounded-xl border border-slate-800">
                                     <div class="text-[10px] text-slate-400">🏆勝利</div>
                                     <div class="text-sm font-black text-emerald-300">${m.wins || 0}</div>
                                 </button>
-                                <button onclick="incrementMemberStat('${m.id}', 'carries')" class="bg-slate-900 hover:bg-slate-800 p-2 rounded-xl border border-slate-800">
+                                <button type="button" onclick="incrementMemberStat('${m.id}', 'carries')" class="bg-slate-900 hover:bg-slate-800 p-2 rounded-xl border border-slate-800">
                                     <div class="text-[10px] text-slate-400">💪神キャリー</div>
                                     <div class="text-sm font-black text-amber-300">${m.carries || 0}</div>
                                 </button>
-                                <button onclick="incrementMemberStat('${m.id}', 'trolls')" class="bg-slate-900 hover:bg-slate-800 p-2 rounded-xl border border-slate-800">
+                                <button type="button" onclick="incrementMemberStat('${m.id}', 'trolls')" class="bg-slate-900 hover:bg-slate-800 p-2 rounded-xl border border-slate-800">
                                     <div class="text-[10px] text-slate-400">🤡やらかし</div>
                                     <div class="text-sm font-black text-rose-300">${m.trolls || 0}</div>
                                 </button>
@@ -2841,7 +2881,7 @@
                                 <span class="font-black text-amber-300">${escapeHtml(ex.title)}</span>
                                 <span class="text-slate-400 ml-1">(${escapeHtml(ex.payer)} 立替: ¥${Number(ex.amount).toLocaleString()})</span>
                             </div>
-                            <button onclick="removeExpenseEntry('${ex.id}')" class="px-2 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">精算済</button>
+                            <button type="button" onclick="removeExpenseEntry('${ex.id}')" class="px-2 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 text-[10px] font-bold">精算済</button>
                         </div>
                     `).join('');
                 }
@@ -2953,7 +2993,7 @@
             document.execCommand('copy');
             temp.remove();
             playUiSound('tap');
-            showToast(`📋 ドメイン「${host}」をコピーしました！Firebaseの承認済みドメインに追加してください`);
+            showToast(`📋 ドメイン「${host}」をコピーしました！`);
         };
 
         window.copyFirestoreRulesText = function() {
@@ -2966,6 +3006,18 @@
             temp.remove();
             playUiSound('match');
             showToast('📋 Firestore Database用のルール全文をコピーしました！');
+        };
+
+        window.copyRealtimeDbRulesText = function() {
+            const rulesText = '{\n  "rules": {\n    ".read": true,\n    ".write": true\n  }\n}';
+            const temp = document.createElement('textarea');
+            temp.value = rulesText;
+            document.body.appendChild(temp);
+            temp.select();
+            document.execCommand('copy');
+            temp.remove();
+            playUiSound('match');
+            showToast('📋 Realtime Database用のルール全文をコピーしました！');
         };
 
         window.closeDiscordSettingsModal = function() {
@@ -2988,7 +3040,7 @@
             playUiSound('match');
             closeDiscordSettingsModal();
             pushStateToCloud();
-            showToast('📣 Discord伝令設定を保存して同期しました！');
+            showToast('📣 設定を保存して同期しました！');
         };
 
         window.sendTestDiscordWebhook = async function() {
@@ -3048,7 +3100,7 @@
 
             if (!webhookUrl || (!enabled && !forceManual)) {
                 if (forceManual) {
-                    showToast('⚠️ 先に右上の「伝令設定」からDiscord Webhook URLを設定してください');
+                    showToast('⚠️ 先に右上の「伝令・同期設定」からDiscord Webhook URLを設定してください');
                 }
                 return;
             }
@@ -3129,16 +3181,21 @@
             playUiSound('match');
             showToast('🔥 Firebase設定を保存しました！リアルタイム同期を開始します...');
             await initRealtimeSync();
+            await pushStateToCloud();
         };
 
         window.downloadHtmlWithEmbeddedConfig = function() {
             const fbEl = document.getElementById('customFirebaseConfigInput');
             const raw = (fbEl && fbEl.value.trim()) || localStorage.getItem(STORAGE_KEY_CUSTOM_FB) || '';
-            const parsed = parseFlexibleFirebaseConfig(raw) || EMBEDDED_FIREBASE_CONFIG;
+            const parsed = parseFlexibleFirebaseConfig(raw) || EMBEDDED_FIREBASE_CONFIG || activeFirebaseConfig;
             if (!parsed) {
                 showToast('⚠️ 先に上の枠へFirebaseの firebaseConfig を貼り付けてください');
                 return;
             }
+
+            closeDiscordSettingsModal();
+            closeOnboardingModal();
+            closeDateModal();
 
             let fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
             fullHtml = fullHtml.replace(
@@ -3194,15 +3251,24 @@
             renderToolsAndRanks();
         }
 
-        // Initialize immediately without any blocking modal popup
-        hydrateStateFromLocalStorage();
-        window.addEventListener('DOMContentLoaded', () => {
-            initMemoryGame();
-            initBombGame();
-            renderAll();
-            renderCatalogGrid();
-            initRealtimeSync();
-        });
+        function bootApp() {
+            try {
+                hydrateStateFromLocalStorage();
+                initMemoryGame();
+                initBombGame();
+                renderAll();
+                renderCatalogGrid();
+                initRealtimeSync();
+            } catch (e) {
+                console.error('Initialization error:', e);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', bootApp);
+        } else {
+            bootApp();
+        }
     </script>
 </body>
 </html>
